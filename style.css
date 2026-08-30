@@ -1,0 +1,365 @@
+/* ==========================================================================
+   Academic & Minimalist Personal Portfolio / CV Style
+   Inspired by Academic CS Faculty Webpages
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Reset & Global Variables
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg-page: #ffffff;
+    --text-main: #27272a;
+    --text-muted: #52525b;
+    --text-light: #71717a;
+    
+    --brand-blue: #1d70b8;
+    --brand-blue-hover: #004488;
+    
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    
+    --max-width: 980px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding: 3rem 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   2. Layout Container
+   -------------------------------------------------------------------------- */
+.site-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: var(--max-width);
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    gap: 3.5rem;
+    align-items: start;
+}
+
+/* --------------------------------------------------------------------------
+   3. Sol Sütun / Sticky Sidebar
+   -------------------------------------------------------------------------- */
+.sidebar {
+    position: sticky;
+    top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Ad (Büyük Mavi Başlık) */
+.author-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--brand-blue);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+}
+
+/* Yuvarlak Profil Fotoğrafı Container & Görseli */
+.profile-avatar-container {
+    width: 100%;
+    max-width: 270px;
+    margin-bottom: 0.5rem;
+}
+
+.profile-avatar-circle {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* E-posta */
+.author-email {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.author-email a {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.author-email a:hover {
+    color: var(--brand-blue);
+    text-decoration: underline;
+}
+
+/* Unvan ve Kurum Bilgisi */
+.author-role-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.author-role {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.author-location {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* İkonlu Linkler Grubu */
+.sidebar-links-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+}
+
+.link-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.link-item a {
+    color: var(--brand-blue);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link-item a:hover {
+    color: var(--brand-blue-hover);
+    text-decoration: underline;
+}
+
+.link-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    color: var(--brand-blue);
+}
+
+/* Ortak Kenar Çubuğu Başlığı */
+.sidebar-section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-light);
+    margin-bottom: 0.35rem;
+}
+
+/* Skills Bölümü Stilleri (Düz Metin) */
+.skills-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid #e5e7eb;
+    margin-bottom: 0.65rem;
+}
+
+.skill-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.skill-cat-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.skill-text {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+/* Özel Bağlantılar Bölümü */
+.special-links-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* --------------------------------------------------------------------------
+   4. Sağ Sütun / Ana İçerik Akışı
+   -------------------------------------------------------------------------- */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2.25rem;
+}
+
+.content-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.section-heading {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.85rem;
+}
+
+.paragraph {
+    font-size: 0.98rem;
+    color: var(--text-main);
+    line-height: 1.65;
+    margin-bottom: 0.85rem;
+}
+
+.paragraph:last-child {
+    margin-bottom: 0;
+}
+
+a {
+    color: var(--brand-blue);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   5. Experience & Bullet Lists
+   -------------------------------------------------------------------------- */
+.experience-entry {
+    margin-bottom: 1.5rem;
+}
+
+.experience-entry:last-child {
+    margin-bottom: 0;
+}
+
+.entry-header {
+    font-size: 1rem;
+    color: var(--text-main);
+    margin-bottom: 0.4rem;
+}
+
+.role-name {
+    color: #111827;
+}
+
+.entry-date {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-left: 0.3rem;
+}
+
+.bullet-list {
+    padding-left: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.bullet-list li {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    line-height: 1.55;
+}
+
+/* --------------------------------------------------------------------------
+   6. Projects & Education
+   -------------------------------------------------------------------------- */
+.project-item {
+    margin-bottom: 1.25rem;
+}
+
+.project-item:last-child {
+    margin-bottom: 0;
+}
+
+.project-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.education-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.edu-degree {
+    font-size: 1.05rem;
+    color: #111827;
+}
+
+.edu-institution {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.edu-date {
+    font-size: 0.88rem;
+    color: var(--text-light);
+}
+
+.edu-notes {
+    margin-top: 0.35rem;
+}
+
+/* --------------------------------------------------------------------------
+   7. Mobile Responsiveness
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    body {
+        padding: 1.5rem 1rem;
+    }
+
+    .container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .sidebar {
+        position: relative;
+        top: 0;
+    }
+
+    .profile-avatar-container {
+        max-width: 180px;
+    }
+
+    .author-name {
+        font-size: 1.75rem;
+    }
+}
