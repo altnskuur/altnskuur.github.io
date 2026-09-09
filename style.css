@@ -68,6 +68,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    max-height: calc(100vh - 4rem);
 }
 
 /* Ad (Büyük Mavi Başlık) */
@@ -78,13 +79,15 @@ body {
     line-height: 1.15;
     letter-spacing: -0.01em;
     margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 /* Yuvarlak Profil Fotoğrafı Container & Görseli */
 .profile-avatar-container {
     width: 100%;
-    max-width: 270px;
+    max-width: 180px;
     margin-bottom: 0.5rem;
+    align-self: center;
 }
 
 .profile-avatar-circle {
@@ -101,6 +104,7 @@ body {
     font-size: 0.92rem;
     color: var(--text-muted);
     margin-bottom: 1rem;
+    text-align: center;
 }
 
 .author-email a {
@@ -118,6 +122,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid #e5e7eb;
     margin-bottom: 0.5rem;
 }
 
@@ -311,6 +317,17 @@ a:hover {
     margin-bottom: 0.25rem;
 }
 
+.project-title a {
+    color: #111827;
+    font: inherit;
+    text-decoration: none;
+}
+
+.project-title a:hover {
+    color: var(--brand-blue);
+    text-decoration: underline;
+}
+
 .education-entry {
     display: flex;
     flex-direction: column;
@@ -331,6 +348,17 @@ a:hover {
 .edu-date {
     font-size: 0.88rem;
     color: var(--text-light);
+}
+
+.edu-date a {
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+}
+
+.edu-date a:hover {
+    color: var(--brand-blue);
+    text-decoration: underline;
 }
 
 .edu-notes {
