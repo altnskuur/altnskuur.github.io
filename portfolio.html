@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uğur Altınışık</title>
+    <meta name="description" content="Uğur Altınışık — software engineer in Ankara. Projects, notes, videos and travel.">
+    <meta name="author" content="Uğur Altınışık">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="profile.jpg">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://altnskuur.github.io/portfolio.html">
+    <meta property="og:title" content="Uğur Altınışık">
+    <meta property="og:description" content="Software engineer in Ankara. Projects, notes, videos and travel.">
+    <meta property="og:image" content="https://altnskuur.github.io/profile.jpg">
+    <meta name="twitter:card" content="summary">
+
+    <!-- apply saved theme before paint (no flash) -->
+    <script>
+        try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) { }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app">
+        <!-- LEFT · navigation -->
+        <nav class="nav" id="nav" aria-label="Sections"></nav>
+
+        <!-- MIDDLE · content -->
+        <main class="main">
+            <div id="view" aria-live="polite"></div>
+
+            <footer class="footer">
+                <a class="term-link" href="index.html" title="back to the terminal">~/terminal</a>
+                <a href="mailto:m.altinisiku@gmail.com" title="email" aria-label="email">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/in/altnskuur/" target="_blank" rel="noopener noreferrer" title="linkedin" aria-label="linkedin">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 11v5M8 8v.01M12 16v-5M16 16v-3a2 2 0 0 0-4 0"/></svg>
+                </a>
+                <a href="https://github.com/altnskuur" target="_blank" rel="noopener noreferrer" title="github" aria-label="github">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+                </a>
+                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" title="youtube (channel link coming soon)" aria-label="youtube">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></svg>
+                </a>
+                <span class="spacer"></span>
+                <button id="theme-toggle" title="toggle dark mode" aria-label="toggle dark mode">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                </button>
+            </footer>
+        </main>
+
+        <!-- RIGHT · detail panel (opens when you click something in the middle) -->
+        <aside class="panel is-default" id="panel" aria-label="Details"></aside>
+    </div>
+    <div class="backdrop" id="backdrop"></div>
+
+    <script>
+    (() => {
+        /* ==================================================================
+           CONTENT
+           Everything you see lives in this block — no need to touch the
+           render code below. (In v1.x this moves into markdown files that
+           the Notion sync writes.)
+           ================================================================== */
+
+        // left panel headers — change the labels here
+        const NAV = [
+            { id: 'hello', label: 'hello world!' },
+            { id: 'core', label: 'core' },
+            { id: 'knowledge', label: 'knowledge' },
+            { id: 'records', label: 'records' },
+            { id: 'pickups', label: 'pickups' },
+            { id: 'cv', label: 'cv', href: 'cv.html' },
+            { id: 'say-hello', label: "say 'hello altnskuur!'" },
+            { id: 'links', label: 'links i liked' }
+        ];
+
+        // links i liked — add one object per link, newest on top.
+        // each one appears in the list and opens in the right panel.
+        // { title: 'name', url: 'https://…', tag: 'blog', why: 'why i liked it' }
+        const LIKED_LINKS = [
+        ];
+
+        // things that open in the right panel
+        const ITEMS = {
+            // ---- core ----
+            'nas': {
+                kicker: 'core · meva avionics', title: 'embedded linux nas',
+                tags: ['linux', 'raid', 'samba', 'nfs', '10 GbE'],
+                body: `<p>a high-performance nas for aerospace systems. raid-based storage for fault-tolerant data, a layered architecture (app, hal, bsp) for the carrier board, and samba tuned with multi-channel.</p>
+                       <ul><li>kernel tuning via sysctl for cpu, ram and i/o</li><li>ethernet transfer tests up to 10 GbE</li><li>thermal tests, fan control via bios/os, mcu code</li></ul>`
+            },
+            'hw-validation': {
+                kicker: 'core · meva avionics', title: 'hardware validation layer',
+                tags: ['c', 'qspi', 'i2c', 'can', 'uart', 'gnss/gsm'],
+                body: `<p>a 3-layer architecture (app, hal, bsp) to check that the hardware is healthy: qspi, i2c and classic can, plus gnss/gsm modules driven with at commands over uart.</p>`
+            },
+            'bootloader': {
+                kicker: 'core · stm defence', title: 'stm32 bootloader',
+                tags: ['stm32', 'c', 'uart', 'iap'],
+                body: `<p>a generic bootloader for stm32 with in-application programming over uart: safe in-field firmware updates, memory partitioning and the jump into the application.</p>`
+            },
+            'rpmsg': {
+                kicker: 'core · stm defence', title: 'rpmsg between a53 and m7',
+                tags: ['rpmsg', 'shared memory', 'cortex-a53', 'cortex-m7'],
+                body: `<p>shared-memory messaging between a cortex-a53 running linux and a cortex-m7, for fast data exchange between the two cores.</p>`
+            },
+            'jpeg': {
+                kicker: 'core · side project', title: 'jpeg encoder & decoder',
+                tags: ['matlab', 'dct', 'huffman', 'dsp'],
+                body: `<p>a full image-compression pipeline from scratch: 2d dct, zigzag scan and huffman coding, plus adaptive quantization based on image entropy to keep psnr above 30.</p>
+                       <p class="note">plan: port it to c++ → webassembly and make it playable here.</p>`,
+                link: { href: 'https://github.com/altnskuur/JPEG', label: 'view on github' }
+            },
+
+            // ---- knowledge ----
+            'self-notes': {
+                kicker: 'knowledge · notion', title: 'self-knowledge notes',
+                body: `<p>my running notes: things i learned and want to remember.</p>
+                       <p class="note">for now these live in notion. soon they'll sync here automatically as til posts.</p>`,
+                link: { href: 'https://mousy-driver-c59.notion.site/Self-Knowledge-Notes-3cc945c9dc438003be07f4283761ba82', label: 'open in notion' }
+            },
+            'deep-research': {
+                kicker: 'knowledge · notion', title: 'deep research',
+                body: `<p>longer write-ups where i dig deep into one topic.</p>`,
+                link: { href: 'https://mousy-driver-c59.notion.site/Shared-Blogs-3cc945c9dc4380ff8670c4cf017bc69a?pvs=74', label: 'open in notion' }
+            },
+
+            // ---- records (travel / videos) ----
+            ...Object.fromEntries(['berlin', 'budapest', 'samos', 'bratislava', 'vienna'].map(city => [
+                'rec-' + city, {
+                    kicker: 'records · travel', title: city,
+                    body: `<div class="video-slot">youtube video goes here<br>(dji osmo action 6)</div>
+                           <p class="note">no vlog for ${city} yet.</p>`
+                }
+            ])),
+
+            // ---- pickups ----
+            'diving': { kicker: 'pickups', title: 'diving', body: `<p>cmas 1-star diver.</p>` },
+            'basketball': { kicker: 'pickups', title: 'basketball', body: `<p>former licensed player. the knees remember.</p>` },
+            'football': { kicker: 'pickups', title: 'tuesday football', body: `<p>pickup football, every tuesday evening.</p>` },
+            'gym': { kicker: 'pickups', title: 'gym', body: `<p>2–3 times a week.</p>` },
+            'languages': { kicker: 'pickups', title: 'languages', body: `<p>german telc a2 done. toefl in progress.</p>` },
+
+            // ---- hello world! ----
+            'now-toefl': { kicker: 'hello world! · studying', title: 'toefl', body: `<p>studying for the toefl, to go next to my german telc a2 certificate.</p>` },
+            'now-cpp': {
+                kicker: 'hello world! · studying', title: 'c++',
+                tags: ['modern c++', 'low-level', 'clean architecture'],
+                body: `<p>going deeper into modern and low-level c++: data types, memory management and clean architecture.</p>
+                       <p>where i practice it: cpp-hashlib.</p>`
+            },
+            'now-hashlib': {
+                kicker: 'hello world! · building', title: 'cpp-hashlib',
+                tags: ['c++', 'md5', 'cryptographic hashing'],
+                body: `<p>a clean-architecture cryptographic hash library, built from scratch with modern and low-level c++.</p>
+                       <p>it starts with md5, documented step by step, plus engineering notes on why each choice was made: data types, memory management and modern c++ practices.</p>`,
+                link: { href: 'https://github.com/altnskuur/cpp-hashlib', label: 'view on github' }
+            },
+            'now-site': { kicker: 'hello world! · building', title: 'altnskuur.github.io', body: `<p>turning a static cv into a cozy home on the internet. roadmap: notion sync for notes, videos, travel, then my own admin panel and a guestbook.</p>`, link: { href: 'https://github.com/altnskuur/altnskuur.github.io', label: 'source on github' } }
+        };
+
+        // hello world! → "what i'm doing"
+        // each row: label + words that take turns every 2 seconds.
+        // [word, item id] → the item id opens it in the right panel (null = plain text)
+        const NOW = [
+            ['studying', [['toefl', 'now-toefl'], ['c++', 'now-cpp']]],
+            ['building', [['altnskuur.github.io', 'now-site'], ['cpp-hashlib', 'now-hashlib']]]
+        ];
+        const ROTATE_EVERY = 2000; // ms
+
+        // hello world! → "brief" tab
+        const HELLO_BRIEF = `
+                <section class="block">
+                    <h2>who am i</h2>
+                    <p>i was born in 2000, so you decide how old i am. 26? 27? i don't know either. i was born in konya and i'm from tire/izmir, but i've lived in ankara since 2002. what a cultural chaos. i love cooking and eating, and i'm sure i'll open a restaurant someday. i'm a 1-star cmas diver. i even bought a camera for it, and now i have to enjoy recording my life with it.</p>
+                </section>
+
+                <section class="block">
+                    <h2>what i did</h2>
+                    <p>i enrolled at tobb etü in 2018 with a full scholarship. back then, i felt like i was achieving a lot, but i learned it was nothing. i graduated with a 2.84/4.00 gpa (i know it's not great, but i'm trying to make up for it). i've worked at 3 companies as an embedded software engineer (2 of them during my student years), on defence industry projects. i really want to share them here, but you know, confidentiality issues.</p>
+                </section>
+
+                <section class="block">
+                    <h2>what i'm doing</h2>
+                    ${nowList()}
+                </section>
+
+                <section class="block">
+                    <h2>what's next</h2>
+                    <p class="note">your words go here: where you want to be, what you want to build.</p>
+                </section>`;
+
+        // hello world! → "autobiography" tab
+        const HELLO_LONG = `
+                <section class="block prose">
+                    <p>i'm a software engineer at meva avionics, baykar's avionics subsidiary, where i design and develop low-level firmware and embedded linux solutions for mission-critical aerospace and defense systems. my work bridges the gap between raw hardware registers and high-performance operating systems, with a focus on robust system architecture, hardware abstraction and reliable device communication.</p>
+                    <p>lately i've been deep in an embedded linux nas: a raid-based storage architecture for fault-tolerant data, linux kernel tuning via sysctl to get the most out of cpu, ram and i/o, and benchmarking samba/nfs over high-speed ethernet. alongside that, i've worked a lot on hardware validation layers, qspi/i2c/can, and gnss/gsm modules driven with at commands.</p>
+                    <p>it all started at tobb university of economics and technology (tobb etü), where i got my b.sc. in electrical and electronics engineering. those years were shaped as much by people as by coursework: i was president of the ieee student branch, led the gastronomy club, and captained team etu callisto in the teknofest model satellite competition. that's where i learned to run multidisciplinary teams, bring different interests together and build things from scratch.</p>
+                    <p>outside the embedded world, i try to balance staying active with exploring new cultures. i'm a cmas 1-star diver and a former licensed basketball player, and you'll find me at pickup football every tuesday evening or in the gym 2–3 times a week. i love discovering new cultures and history. so far: berlin, budapest, samos, bratislava and vienna. right now i'm grinding for the toefl, to go next to my german telc a2.</p>
+                </section>`;
+
+        let helloTab = 'brief';
+
+        // a row in the middle list: [item id, title, meta, subtitle]
+        const VIEWS = {
+            hello: () => `
+                <h1 class="handle">@altnskuur</h1>
+                <div class="subnav">
+                    <div class="tabs" role="tablist">
+                        <button role="tab" data-tab="brief" aria-selected="${helloTab === 'brief'}">brief</button>
+                        <button role="tab" data-tab="autobiography" aria-selected="${helloTab === 'autobiography'}">autobiography</button>
+                    </div>
+                </div>
+                ${helloTab === 'brief' ? HELLO_BRIEF : HELLO_LONG}`,
+
+            core: () => `
+                <div class="eyebrow">core</div>
+                <h1 class="page-title">the things i build</h1>
+                <section class="block">
+                    <h2>work</h2>
+                    ${list([
+                        ['nas', 'embedded linux nas', '2025 —', 'raid, samba, kernel tuning, 10 GbE'],
+                        ['hw-validation', 'hardware validation layer', '2025 —', 'qspi · i2c · can · gnss/gsm'],
+                        ['bootloader', 'stm32 bootloader', '2024', 'in-application programming over uart'],
+                        ['rpmsg', 'rpmsg between a53 and m7', '2023', 'shared-memory messaging across cores']
+                    ])}
+                </section>
+                <section class="block">
+                    <h2>side projects</h2>
+                    ${list([['jpeg', 'jpeg encoder & decoder', 'matlab', 'dct, huffman, adaptive quantization']])}
+                </section>`,
+
+            knowledge: () => `
+                <div class="eyebrow">knowledge</div>
+                <h1 class="page-title">what i learned today, and what i keep</h1>
+                <section class="block">
+                    ${list([
+                        ['self-notes', 'self-knowledge notes', 'notion', 'running notes'],
+                        ['deep-research', 'deep research', 'notion', 'long write-ups']
+                    ])}
+                </section>
+                <p class="note">til posts will appear here once the notion sync is live.</p>`,
+
+            records: () => `
+                <div class="eyebrow">records</div>
+                <h1 class="page-title">videos, vlogs and places</h1>
+                <section class="block">
+                    <h2>travel</h2>
+                    ${list(['berlin', 'budapest', 'samos', 'bratislava', 'vienna'].map(c => ['rec-' + c, c, 'visited', '']))}
+                </section>
+                <p class="note">shot on the dji osmo action 6, hosted on youtube.</p>`,
+
+            pickups: () => `
+                <div class="eyebrow">pickups</div>
+                <h1 class="page-title">things i picked up along the way</h1>
+                <section class="block">
+                    ${list([
+                        ['diving', 'diving', 'cmas 1★', ''],
+                        ['basketball', 'basketball', 'ex-licensed', ''],
+                        ['football', 'tuesday football', 'weekly', ''],
+                        ['gym', 'gym', '2–3× / week', ''],
+                        ['languages', 'languages', 'de a2 · en', '']
+                    ])}
+                </section>`,
+
+            'say-hello': () => `
+                <div class="eyebrow">say 'hello altnskuur!'</div>
+                <h1 class="page-title">leave a note</h1>
+                <section class="block">
+                    <p>a guestbook is coming. until then, the fastest way is email:</p>
+                    <p><a class="inline-open" href="mailto:m.altinisiku@gmail.com">m.altinisiku@gmail.com</a></p>
+                </section>`,
+
+            links: () => `
+                <div class="eyebrow">links i liked</div>
+                <h1 class="page-title">good stuff from around the internet</h1>
+                <section class="block">
+                    ${LIKED_LINKS.length
+                        ? list(LIKED_LINKS.map((l, i) => ['link-' + i, l.title, l.tag || '', hostOf(l.url)]))
+                        : '<p class="note">nothing here yet. the first links are on their way.</p>'}
+                </section>`
+        };
+
+        // every liked link gets its own right-panel card
+        function hostOf(url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
+        LIKED_LINKS.forEach((l, i) => {
+            ITEMS['link-' + i] = {
+                kicker: 'links i liked' + (l.tag ? ' · ' + l.tag : ''),
+                title: l.title,
+                body: `<p>${l.why || ''}</p><p class="note">${hostOf(l.url)}</p>`,
+                link: { href: l.url, label: 'visit' }
+            };
+        });
+
+        // right panel stays empty until something is clicked
+        const DEFAULT_PANEL = '';
+
+        /* ==================================================================
+           RENDER (no content below this line)
+           ================================================================== */
+        const $nav = document.getElementById('nav');
+        const $view = document.getElementById('view');
+        const $panel = document.getElementById('panel');
+        const $backdrop = document.getElementById('backdrop');
+        let selected = null;
+
+        function list(rows) {
+            return '<ul class="list">' + rows.map(([id, title, meta, sub]) => `
+                <li><button class="item" data-open="${id}">
+                    <span class="item-title">${title}</span>
+                    <span class="item-meta">${meta || ''}</span>
+                    ${sub ? `<span class="item-sub">${sub}</span>` : ''}
+                </button></li>`).join('') + '</ul>';
+        }
+
+        function nowWord([text, id]) {
+            return id ? `<button class="inline-open" data-open="${id}">${text}</button>` : `<span class="plain">${text}</span>`;
+        }
+
+        function nowList() {
+            return '<dl class="kv">' + NOW.map(([label, words]) => `
+                <dt>${label}</dt>
+                <dd><span class="rotator" data-words='${JSON.stringify(words).replace(/'/g, '&#39;')}'>${nowWord(words[0])}</span></dd>`
+            ).join('') + '</dl>';
+        }
+
+        // swap the words every ROTATE_EVERY ms (fade out → swap → fade in)
+        let rotateTimers = [];
+        function startRotators() {
+            rotateTimers.forEach(clearInterval);
+            rotateTimers = [];
+            document.querySelectorAll('.rotator').forEach(el => {
+                const words = JSON.parse(el.dataset.words);
+                if (words.length < 2) return;
+                let i = 0;
+                rotateTimers.push(setInterval(() => {
+                    el.classList.add('out');
+                    setTimeout(() => {
+                        i = (i + 1) % words.length;
+                        el.innerHTML = nowWord(words[i]);
+                        markSelected();
+                        el.classList.remove('out');
+                    }, 250);
+                }, ROTATE_EVERY));
+            });
+        }
+
+        function renderNav(active) {
+            $nav.innerHTML = NAV.map(n => n.href
+                ? `<a href="${n.href}" class="nav-ext">${n.label}</a>`
+                : `<a href="#${n.id}" class="${n.id === active ? 'active' : ''}" ${n.id === active ? 'aria-current="page"' : ''}>${n.label}</a>`
+            ).join('');
+        }
+
+        const CLOSE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+        function openPanel(id) {
+            const it = ITEMS[id];
+            if (!it) return;
+            selected = id;
+            $panel.classList.remove('is-default');
+            $panel.innerHTML = `
+                <article class="panel-card">
+                    <header class="panel-head">
+                        <div class="titles">
+                            <div class="panel-kicker">${it.kicker || ''}</div>
+                            <h2 class="panel-title">${it.title}</h2>
+                        </div>
+                        <button class="panel-close" id="panel-close" aria-label="close">${CLOSE_ICON}</button>
+                    </header>
+                    ${it.tags ? `<div class="tags">${it.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+                    <div class="panel-body">${it.body}</div>
+                    ${it.link ? `<a class="btn" href="${it.link.href}" target="_blank" rel="noopener noreferrer">${it.link.label} ↗</a>` : ''}
+                </article>`;
+            $panel.classList.add('open');
+            $backdrop.classList.add('show');
+            markSelected();
+            document.getElementById('panel-close').focus({ preventScroll: true });
+        }
+
+        function closePanel() {
+            selected = null;
+            $panel.classList.remove('open');
+            $backdrop.classList.remove('show');
+            $panel.classList.add('is-default');
+            $panel.innerHTML = DEFAULT_PANEL;
+            markSelected();
+        }
+
+        function markSelected() {
+            document.querySelectorAll('[data-open]').forEach(b => b.classList.toggle('selected', b.dataset.open === selected && b.classList.contains('item')));
+        }
+
+        function route() {
+            const id = (location.hash || '#hello').slice(1);
+            const view = VIEWS[id] ? id : 'hello';
+            renderNav(view);
+            $view.innerHTML = VIEWS[view]();
+            startRotators();
+            closePanel();
+            document.title = (view === 'hello' ? 'Uğur Altınışık' : NAV.find(n => n.id === view).label + ' · Uğur Altınışık');
+        }
+
+        // clicks in the middle → right panel
+        $view.addEventListener('click', e => {
+            const tab = e.target.closest('[data-tab]');
+            if (tab) {
+                helloTab = tab.dataset.tab;
+                $view.innerHTML = VIEWS.hello();
+                startRotators();
+                closePanel();
+                return;
+            }
+            const b = e.target.closest('[data-open]');
+            if (!b) return;
+            if (selected === b.dataset.open) closePanel(); else openPanel(b.dataset.open);
+        });
+        $panel.addEventListener('click', e => { if (e.target.closest('#panel-close')) closePanel(); });
+        $backdrop.addEventListener('click', closePanel);
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+        window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
+
+        // theme toggle
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const root = document.documentElement;
+            const isDark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+            root.dataset.theme = isDark ? 'light' : 'dark';
+            try { localStorage.setItem('theme', root.dataset.theme); } catch (e) { }
+        });
+
+        route();
+    })();
+    </script>
+</body>
+
+</html>

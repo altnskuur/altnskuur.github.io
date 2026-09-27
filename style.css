@@ -1,393 +1,414 @@
 /* ==========================================================================
-   Academic & Minimalist Personal Portfolio / CV Style
-   Inspired by Academic CS Faculty Webpages
+   altnskuur — ui
+   3-panel layout: nav (left) · content (middle) · detail panel (right)
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   1. Reset & Global Variables
-   -------------------------------------------------------------------------- */
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --bg-page: #ffffff;
-    --text-main: #27272a;
-    --text-muted: #52525b;
-    --text-light: #71717a;
-    
-    --brand-blue: #1d70b8;
-    --brand-blue-hover: #004488;
-    
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    
-    --max-width: 980px;
+    --bg: #ffffff;
+    --bg-soft: #f6f6f5;
+    --bg-hover: #f1f1ef;
+    --line: #ececea;
+    --text: #2b2b2e;
+    --text-strong: #151517;
+    --muted: #75757c;
+    --faint: #a3a3a9;
+    --accent: #1d70b8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 8px 24px rgba(0, 0, 0, .06);
+
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    --nav-w: 190px;
+    --mid-w: 720px;
+    --panel-w: 440px;
 }
 
-html {
-    scroll-behavior: smooth;
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #111111;
+        --bg-soft: #1a1a1b;
+        --bg-hover: #1f1f21;
+        --line: #262628;
+        --text: #cfcfd3;
+        --text-strong: #f1f1f3;
+        --muted: #8d8d95;
+        --faint: #5e5e66;
+        --accent: #6ea8e6;
+        --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+    }
 }
+
+:root[data-theme="dark"] {
+    --bg: #111111;
+    --bg-soft: #1a1a1b;
+    --bg-hover: #1f1f21;
+    --line: #262628;
+    --text: #cfcfd3;
+    --text-strong: #f1f1f3;
+    --muted: #8d8d95;
+    --faint: #5e5e66;
+    --accent: #6ea8e6;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+html { -webkit-text-size-adjust: 100%; }
 
 body {
-    background-color: var(--bg-page);
-    color: var(--text-main);
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.6;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    padding: 3rem 1.5rem;
+    transition: background-color .2s, color .2s;
 }
+
+a { color: inherit; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 
 /* --------------------------------------------------------------------------
-   2. Layout Container
+   Layout
    -------------------------------------------------------------------------- */
-.site-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.container {
-    width: 100%;
-    max-width: var(--max-width);
+.app {
     display: grid;
-    grid-template-columns: 270px 1fr;
-    gap: 3.5rem;
+    grid-template-columns: var(--nav-w) minmax(0, var(--mid-w)) clamp(300px, calc(100vw - 1160px), var(--panel-w));   /* the middle gets space first */
+    gap: 0 3.5rem;
+    max-width: calc(var(--nav-w) + var(--mid-w) + var(--panel-w) + 7rem + 4rem);   /* columns + gaps + side padding */
+    margin: 0 auto;
+    padding: 3.25rem 2rem 4rem;
     align-items: start;
 }
 
-/* --------------------------------------------------------------------------
-   3. Sol Sütun / Sticky Sidebar
-   -------------------------------------------------------------------------- */
-.sidebar {
+/* ---------- left: nav ---------- */
+.nav {
     position: sticky;
-    top: 2rem;
+    top: 3.25rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    max-height: calc(100vh - 4rem);
+    align-items: flex-end;
+    gap: .2rem;
+    padding-right: 3.5rem;
+    margin-right: -3.5rem;          /* the divider sits in the gap */
+    border-right: 1px solid var(--line);
+    min-height: 34rem;
 }
 
-/* Ad (Büyük Mavi Başlık) */
-.author-name {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--brand-blue);
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    margin-bottom: 0.5rem;
-    text-align: center;
-}
-
-/* Yuvarlak Profil Fotoğrafı Container & Görseli */
-.profile-avatar-container {
-    width: 100%;
-    max-width: 180px;
-    margin-bottom: 0.5rem;
-    align-self: center;
-}
-
-.profile-avatar-circle {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: 50%;
-    display: block;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* E-posta */
-.author-email {
-    font-size: 0.92rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.author-email a {
-    color: var(--text-muted);
+.nav a {
+    color: var(--muted);
     text-decoration: none;
+    font-size: .95rem;
+    line-height: 1.75;
+    text-align: right;
+    white-space: nowrap;
+    transition: color .15s;
 }
 
-.author-email a:hover {
-    color: var(--brand-blue);
+.nav a:hover { color: var(--text-strong); }
+
+.nav a.active {
+    color: var(--text-strong);
+    font-weight: 600;
     text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1.5px;
 }
 
-/* Unvan ve Kurum Bilgisi */
-.author-role-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    padding-top: 0.65rem;
-    border-top: 1px solid #e5e7eb;
-    margin-bottom: 0.5rem;
+.nav .nav-ext::after {
+    content: "↗";
+    font-size: .75em;
+    margin-left: .2em;
+    color: var(--faint);
 }
 
-.author-role {
-    font-size: 1.25rem;
+/* ---------- middle: content ---------- */
+.main { min-width: 0; padding-left: 3.5rem; }
+
+.eyebrow {
+    font-size: .8rem;
+    color: var(--muted);
+    margin-bottom: .1rem;
+}
+
+.page-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-strong);
+    margin-bottom: 2rem;
+}
+
+.block { margin-bottom: 2.25rem; }
+
+.block h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-strong);
+    margin-bottom: .55rem;
+    letter-spacing: -.005em;
+}
+
+.block p { margin-bottom: .75rem; }
+.block p:last-child { margin-bottom: 0; }
+
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; }
+.kv dt { color: var(--muted); }
+.kv dd { color: var(--text-strong); }
+
+.note {
+    font-size: .85rem;
+    color: var(--muted);
+    border-left: 2px solid var(--line);
+    padding-left: .8rem;
+}
+
+/* hello world! header: @handle + tabs */
+.handle {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.6rem;
     font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.25rem;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    color: var(--text-strong);
+    margin-bottom: 1.6rem;
 }
 
-.author-location {
-    font-size: 0.92rem;
-    color: var(--text-muted);
-    line-height: 1.4;
-}
-
-/* İkonlu Linkler Grubu */
-.sidebar-links-group {
+.subnav {
     display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1.25rem;
+    align-items: flex-end;
+    justify-content: flex-end;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 2rem;
+    font-size: .9rem;
 }
 
-.link-item {
+.tabs { display: flex; gap: 1rem; }
+
+.tabs button {
+    color: var(--muted);
+    padding-bottom: .65rem;
+    margin-bottom: -1px;
+    border-bottom: 1px solid transparent;
+    transition: color .15s, border-color .15s;
+}
+.tabs button:hover { color: var(--text-strong); }
+.tabs button[aria-selected="true"] { color: var(--text-strong); border-bottom-color: var(--text-strong); }
+
+.prose p { margin-bottom: 1.1rem; }
+
+/* rotating words in "what i'm doing" */
+.rotator {
+    display: inline-block;
+    transition: opacity .25s ease, transform .25s ease;
+}
+.rotator.out { opacity: 0; transform: translateY(-4px); }
+.rotator .plain { color: var(--text-strong); }
+
+/* clickable list rows → open in the right panel */
+.list { list-style: none; display: flex; flex-direction: column; margin: 0 -.75rem; }
+
+.item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .1rem 1rem;
+    width: 100%;
+    text-align: left;
+    padding: .6rem .75rem;
+    border-radius: 10px;
+    transition: background-color .15s;
+}
+
+.item:hover, .item:focus-visible { background: var(--bg-hover); outline: none; }
+.item.selected { background: var(--bg-soft); box-shadow: inset 2px 0 0 var(--accent); }
+
+.item-title { color: var(--text-strong); font-weight: 500; }
+.item-meta { color: var(--faint); font-size: .85rem; white-space: nowrap; }
+.item-sub { grid-column: 1 / -1; color: var(--muted); font-size: .9rem; line-height: 1.5; }
+
+.inline-open {
+    color: var(--text-strong);
+    text-decoration: underline;
+    text-decoration-color: var(--faint);
+    text-underline-offset: 3px;
+}
+.inline-open:hover { text-decoration-color: var(--text-strong); }
+
+/* footer */
+.footer {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
+    gap: .9rem;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .9rem;
 }
 
-.link-item a {
-    color: var(--brand-blue);
+.footer .spacer { flex: 1; }
+
+.footer a, .footer button {
+    display: inline-flex;
+    color: var(--muted);
     text-decoration: none;
-    font-weight: 500;
+    transition: color .15s;
+}
+.footer a:hover, .footer button:hover { color: var(--text-strong); }
+.footer svg { width: 17px; height: 17px; }
+
+.footer .term-link { font-family: var(--mono); font-size: .8rem; }
+
+/* ---------- right: detail panel ---------- */
+.panel {
+    position: sticky;
+    top: 3.25rem;
+    max-height: calc(100vh - 6.5rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
 }
 
-.link-item a:hover {
-    color: var(--brand-blue-hover);
-    text-decoration: underline;
+.panel-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.5rem 1.5rem 1.6rem;
+    animation: panel-in .22s ease-out;
 }
 
-.link-icon {
-    width: 1.1rem;
-    height: 1.1rem;
+@keyframes panel-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+.panel-head { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+.panel-head .titles { flex: 1; min-width: 0; }
+.panel-kicker { font-size: .78rem; color: var(--muted); text-transform: lowercase; }
+.panel-title { font-size: 1.15rem; font-weight: 600; color: var(--text-strong); line-height: 1.35; }
+
+.panel-close {
     flex-shrink: 0;
-    color: var(--brand-blue);
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    display: grid; place-items: center;
+    color: var(--muted);
+}
+.panel-close:hover { background: var(--bg-hover); color: var(--text-strong); }
+.panel-close svg { width: 16px; height: 16px; }
+
+.panel-body p { margin-bottom: .75rem; }
+.panel-body ul { padding-left: 1.1rem; margin-bottom: .75rem; }
+.panel-body li { margin-bottom: .35rem; }
+
+.tags { display: flex; flex-wrap: wrap; gap: .35rem; margin: .25rem 0 1rem; }
+.tag {
+    font-size: .75rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: .05rem .55rem;
 }
 
-/* Ortak Kenar Çubuğu Başlığı */
-.sidebar-section-title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--text-light);
-    margin-bottom: 0.35rem;
-}
-
-/* Skills Bölümü Stilleri (Düz Metin) */
-.skills-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    padding-top: 0.65rem;
-    border-top: 1px solid #e5e7eb;
-    margin-bottom: 0.65rem;
-}
-
-.skill-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-}
-
-.skill-cat-title {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #111827;
-}
-
-.skill-text {
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    line-height: 1.45;
-}
-
-/* Özel Bağlantılar Bölümü */
-.special-links-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    padding-top: 0.65rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-/* --------------------------------------------------------------------------
-   4. Sağ Sütun / Ana İçerik Akışı
-   -------------------------------------------------------------------------- */
-.main-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2.25rem;
-}
-
-.content-section {
-    display: flex;
-    flex-direction: column;
-}
-
-.section-heading {
-    font-size: 1.45rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 0.85rem;
-}
-
-.paragraph {
-    font-size: 0.98rem;
-    color: var(--text-main);
-    line-height: 1.65;
-    margin-bottom: 0.85rem;
-}
-
-.paragraph:last-child {
-    margin-bottom: 0;
-}
-
-a {
-    color: var(--brand-blue);
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-top: .5rem;
+    padding: .45rem .85rem;
+    border-radius: 8px;
+    background: var(--text-strong);
+    color: var(--bg);
     text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* --------------------------------------------------------------------------
-   5. Experience & Bullet Lists
-   -------------------------------------------------------------------------- */
-.experience-entry {
-    margin-bottom: 1.5rem;
-}
-
-.experience-entry:last-child {
-    margin-bottom: 0;
-}
-
-.entry-header {
-    font-size: 1rem;
-    color: var(--text-main);
-    margin-bottom: 0.4rem;
-}
-
-.role-name {
-    color: #111827;
-}
-
-.entry-date {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    margin-left: 0.3rem;
-}
-
-.bullet-list {
-    padding-left: 1.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.bullet-list li {
-    font-size: 0.95rem;
-    color: var(--text-muted);
-    margin-bottom: 0.35rem;
-    line-height: 1.55;
-}
-
-/* --------------------------------------------------------------------------
-   6. Projects & Education
-   -------------------------------------------------------------------------- */
-.project-item {
-    margin-bottom: 1.25rem;
-}
-
-.project-item:last-child {
-    margin-bottom: 0;
-}
-
-.project-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.project-title a {
-    color: #111827;
-    font: inherit;
-    text-decoration: none;
-}
-
-.project-title a:hover {
-    color: var(--brand-blue);
-    text-decoration: underline;
-}
-
-.education-entry {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
-.edu-degree {
-    font-size: 1.05rem;
-    color: #111827;
-}
-
-.edu-institution {
-    font-size: 0.95rem;
-    color: var(--text-muted);
+    font-size: .88rem;
     font-weight: 500;
 }
+.btn:hover { opacity: .85; }
 
-.edu-date {
-    font-size: 0.88rem;
-    color: var(--text-light);
+.video-slot {
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    border: 1px dashed var(--faint);
+    display: grid; place-items: center;
+    color: var(--muted);
+    font-size: .85rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    padding: 1rem;
 }
 
-.edu-date a {
-    color: inherit;
-    font: inherit;
-    text-decoration: none;
-}
-
-.edu-date a:hover {
-    color: var(--brand-blue);
-    text-decoration: underline;
-}
-
-.edu-notes {
-    margin-top: 0.35rem;
-}
+.backdrop { display: none; }
 
 /* --------------------------------------------------------------------------
-   7. Mobile Responsiveness
+   Responsive
    -------------------------------------------------------------------------- */
-@media (max-width: 768px) {
-    body {
-        padding: 1.5rem 1rem;
-    }
 
-    .container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
+/* medium: right panel turns into a slide-in drawer */
+@media (max-width: 1180px) {
+    .app { grid-template-columns: var(--nav-w) minmax(0, 1fr); max-width: 900px; }
 
-    .sidebar {
-        position: relative;
+    .panel {
+        position: fixed;
+        top: 0; right: 0; bottom: 0;
+        width: min(460px, 92vw);
+        max-height: none;
+        background: var(--bg);
+        border-left: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        padding: 1.25rem;
+        transform: translateX(105%);
+        transition: transform .25s ease;
+        z-index: 20;
+    }
+    .panel.open { transform: none; }
+    .panel .panel-card { border: 0; background: none; padding: .25rem; animation: none; }
+
+    .backdrop {
+        display: block;
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, .25);
+        opacity: 0; pointer-events: none;
+        transition: opacity .25s;
+        z-index: 15;
+    }
+    .backdrop.show { opacity: 1; pointer-events: auto; }
+}
+
+/* small: nav on top, horizontal */
+@media (max-width: 720px) {
+    body { font-size: 15px; }
+    .app { display: block; padding: 1rem 1rem 3rem; }
+
+    .nav {
+        position: sticky;
         top: 0;
+        z-index: 10;
+        flex-direction: row;
+        align-items: center;
+        gap: 1.1rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        min-height: 0;
+        margin: 0 -1rem 1.75rem;
+        padding: .75rem 1rem;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
     }
+    .nav::-webkit-scrollbar { display: none; }
 
-    .profile-avatar-container {
-        max-width: 180px;
-    }
+    .main { padding-left: 0; }
 
-    .author-name {
-        font-size: 1.75rem;
+    .panel {
+        top: auto; left: 0; right: 0; bottom: 0;
+        width: 100%;
+        max-height: 85vh;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        border-radius: 16px 16px 0 0;
+        transform: translateY(105%);
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
 }
