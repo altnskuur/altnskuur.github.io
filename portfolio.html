@@ -51,9 +51,18 @@
                 <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" title="youtube (channel link coming soon)" aria-label="youtube">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></svg>
                 </a>
+                <a href="https://x.com/altnskuur" target="_blank" rel="noopener noreferrer" title="x (twitter)" aria-label="x (twitter)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+                </a>
+                <a href="https://www.instagram.com/altnskuur/" target="_blank" rel="noopener noreferrer" title="instagram" aria-label="instagram">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01"/></svg>
+                </a>
                 <span class="spacer"></span>
-                <button id="theme-toggle" title="toggle dark mode" aria-label="toggle dark mode">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                <button id="theme-toggle" title="switch to dark mode" aria-label="switch to dark mode">
+                    <!-- moon: shown in light mode -->
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                    <!-- sun: shown in dark mode -->
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
                 </button>
             </footer>
         </main>
@@ -75,13 +84,11 @@
         // left panel headers — change the labels here
         const NAV = [
             { id: 'hello', label: 'hello world!' },
-            { id: 'core', label: 'core' },
-            { id: 'knowledge', label: 'knowledge' },
+            { id: 'stl', label: 'stl' },
             { id: 'records', label: 'records' },
             { id: 'pickups', label: 'pickups' },
-            { id: 'cv', label: 'cv', href: 'cv.html' },
-            { id: 'say-hello', label: "say 'hello altnskuur!'" },
-            { id: 'links', label: 'links i liked' }
+            { id: 'cv', label: 'cv' },
+            { id: 'say-hello', label: "say 'hello altnskuur!'" }
         ];
 
         // links i liked — add one object per link, newest on top.
@@ -152,7 +159,7 @@
             'languages': { kicker: 'pickups', title: 'languages', body: `<p>german telc a2 done. toefl in progress.</p>` },
 
             // ---- hello world! ----
-            'now-toefl': { kicker: 'hello world! · studying', title: 'toefl', body: `<p>studying for the toefl, to go next to my german telc a2 certificate.</p>` },
+            'now-toefl': { kicker: 'hello world! · studying', title: 'toefl ibt', body: `<p>studying for the toefl ibt, to go next to my german telc a2 certificate.</p>` },
             'now-cpp': {
                 kicker: 'hello world! · studying', title: 'c++',
                 tags: ['modern c++', 'low-level', 'clean architecture'],
@@ -166,15 +173,51 @@
                        <p>it starts with md5, documented step by step, plus engineering notes on why each choice was made: data types, memory management and modern c++ practices.</p>`,
                 link: { href: 'https://github.com/altnskuur/cpp-hashlib', label: 'view on github' }
             },
-            'now-site': { kicker: 'hello world! · building', title: 'altnskuur.github.io', body: `<p>turning a static cv into a cozy home on the internet. roadmap: notion sync for notes, videos, travel, then my own admin panel and a guestbook.</p>`, link: { href: 'https://github.com/altnskuur/altnskuur.github.io', label: 'source on github' } }
+            'now-site': { kicker: 'hello world! · building', title: 'altnskuur.github.io', body: `<p>turning a static cv into a cozy home on the internet. roadmap: notion sync for notes, videos, travel, then my own admin panel and a guestbook.</p>`, link: { href: 'https://github.com/altnskuur/altnskuur.github.io', label: 'source on github' } },
+
+            // cv → companies (short tab)
+            'co-meva': {
+                kicker: 'cv · company', title: 'Meva Avionics', tags: ['avionics', 'founded 2023'],
+                body: `<p>A company that produces domestic and national avionics by combining critical electronic hardware and software components with high technology and innovation. Founded in 2023, its founding partners include Selçuk Bayraktar and Haluk Bayraktar. It has many local and foreign partners, such as Baykar, ASELSAN and TAI.</p>`,
+                link: { href: 'https://www.mevaavionics.com', label: 'official website' }
+            },
+            'co-specson': {
+                kicker: 'cv · company', title: 'SPECSON Design', tags: ['start-up', 'flow reactors', 'spectroscopy'],
+                body: `<p>Specson Instruments was founded as a start-up at a technology and innovation center. It designs project-specific flow reactors for catalyst testing and CO<sub>2</sub> capture, as well as batch, in-situ and operando analysis cells for various spectroscopy applications.</p>`,
+                link: { href: 'https://specsoninstruments.com/index.php', label: 'official website' }
+            },
+
+            // listening → spotify player opens in the right panel
+            'now-2026': {
+                kicker: 'hello world! · listening', title: '2026',
+                body: `<p>i loved 2026 with these songs.</p>
+                       <div class="embed" data-fallback="loading the spotify player…"><iframe src="https://open.spotify.com/embed/playlist/3UV2SqEPoeGye1VK2vGbEZ?utm_source=generator" height="352"
+                           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="2026 · spotify playlist"></iframe></div>`
+            },
+
+            // watching
+            'now-supernatural': { kicker: 'hello world! · watching', title: 'supernatural', tags: ['tv series'], body: `<p>15 seasons is a really tough challenge for me, but i've managed to finish 8 so far. i'll finish it in the original audio, without subtitles.</p>` },
+            'now-true-detective': { kicker: 'hello world! · watching', title: 'true detective', tags: ['tv series'], body: `<p>one of Matthew McConaughey's speeches made him my role model. because of Matthew, i'm watching this legendary series.<br>
+                       also, in my opinion, Matthew and Woody are brothers.<br>
+                       <a class="inline-open" href="https://youtube.com/shorts/hhaReQ4LNZw?si=cQksuMgYItC9aHku" target="_blank" rel="noopener noreferrer">who's your hero?</a></p>` },
+
+            // reading
+            'now-bozkurt': {
+                kicker: 'hello world! · reading', title: 'Bozkurt Mustafa Kemal', tags: ['h. c. armstrong', '1932'],
+                body: `<p>he wrote Atatürk from a different angle: some of it is true, and some of it can't be proven. but i want to learn about my ancestor from every point of view.</p>`
+            },
+            'now-zaman': { kicker: 'hello world! · reading', title: 'Zamanın Kısa Tarihi', tags: ['stephen hawking'], body: `<p>what did the world start with? i like thinking about it and trying to understand it.</p>` }
         };
 
         // hello world! → "what i'm doing"
         // each row: label + words that take turns every 2 seconds.
         // [word, item id] → the item id opens it in the right panel (null = plain text)
         const NOW = [
-            ['studying', [['toefl', 'now-toefl'], ['c++', 'now-cpp']]],
-            ['building', [['altnskuur.github.io', 'now-site'], ['cpp-hashlib', 'now-hashlib']]]
+            ['studying', [['toefl ibt', 'now-toefl'], ['c++', 'now-cpp']]],
+            ['building', [['altnskuur.github.io', 'now-site'], ['cpp-hashlib', 'now-hashlib']]],
+            ['listening', [['2026', 'now-2026']]],
+            ['watching', [['supernatural', 'now-supernatural'], ['true detective', 'now-true-detective']]],
+            ['reading', [['Bozkurt Mustafa Kemal', 'now-bozkurt'], ['Zamanın Kısa Tarihi', 'now-zaman']]]
         ];
         const ROTATE_EVERY = 2000; // ms
 
@@ -197,81 +240,183 @@
 
                 <section class="block">
                     <h2>what's next</h2>
-                    <p class="note">your words go here: where you want to be, what you want to build.</p>
+                    <p>i miss academia so much. my next goal is a master's degree. i want to dive more, record my life more, cook more tasty food and deep dive into c++. who knows, maybe someday i'll dive at most of the popular dive spots, serve top-quality plates to my friends, attend cppcon, and bring my hands-on industry work and my academic work together.</p>
                 </section>`;
 
         // hello world! → "autobiography" tab
         const HELLO_LONG = `
-                <section class="block prose">
-                    <p>i'm a software engineer at meva avionics, baykar's avionics subsidiary, where i design and develop low-level firmware and embedded linux solutions for mission-critical aerospace and defense systems. my work bridges the gap between raw hardware registers and high-performance operating systems, with a focus on robust system architecture, hardware abstraction and reliable device communication.</p>
-                    <p>lately i've been deep in an embedded linux nas: a raid-based storage architecture for fault-tolerant data, linux kernel tuning via sysctl to get the most out of cpu, ram and i/o, and benchmarking samba/nfs over high-speed ethernet. alongside that, i've worked a lot on hardware validation layers, qspi/i2c/can, and gnss/gsm modules driven with at commands.</p>
-                    <p>it all started at tobb university of economics and technology (tobb etü), where i got my b.sc. in electrical and electronics engineering. those years were shaped as much by people as by coursework: i was president of the ieee student branch, led the gastronomy club, and captained team etu callisto in the teknofest model satellite competition. that's where i learned to run multidisciplinary teams, bring different interests together and build things from scratch.</p>
-                    <p>outside the embedded world, i try to balance staying active with exploring new cultures. i'm a cmas 1-star diver and a former licensed basketball player, and you'll find me at pickup football every tuesday evening or in the gym 2–3 times a week. i love discovering new cultures and history. so far: berlin, budapest, samos, bratislava and vienna. right now i'm grinding for the toefl, to go next to my german telc a2.</p>
+                <section class="block">
+                    <p class="note">coming soon.</p>
                 </section>`;
 
-        let helloTab = 'brief';
+        // cv → "short" tab
+        const CV_SHORT = `
+                <section class="block">
+                    <dl class="kv cv-kv">
+                        <dt>now</dt><dd>Software Engineer · <button class="inline-open" data-open="co-meva">Meva Avionics</button><span class="cv-date cv-when">(Nov. 2025 – present)</span></dd>
+                        <dt>before</dt><dd>Candidate Embedded Software Engineer · STM Defence<span class="cv-date cv-when">(Dec. 2023 – Jun. 2024)</span>Part-Time Engineer · <button class="inline-open" data-open="co-specson">SPECSON Design</button><span class="cv-date cv-when">(Jan. 2022 – May 2023)</span></dd>
+                        <dt>internship</dt><dd>Embedded Software Engineer Intern · STM Defence<span class="cv-date cv-when">(May 2023 – Aug. 2023)</span>Electrical and Electronics Engineer Intern · NERO Industry / NAVIO Technology<span class="cv-date cv-when">(May 2021 – Sep. 2021)</span></dd>
+                        <dt>education</dt><dd>B.Sc. Electrical and Electronics Engineering · TOBB ETÜ<span class="cv-date cv-when">(2018 – 2025)</span></dd>
+                        <dt>code</dt><dd>Embedded C, C++, Python, MATLAB, Verilog</dd>
+                        <dt>languages</dt><dd>Turkish (native), English (professional), German (basic)</dd>
+                        <dt>based in</dt><dd>Ankara, Türkiye</dd>
+                    </dl>
+                </section>`;
+
+        // cv → "detailed" tab
+        const CV_LONG = `
+                <section class="block">
+                    <h2>experience</h2>
+                    <div class="cv-entry">
+                        <div class="cv-head"><span class="cv-org">Meva Avionics</span><span class="cv-date">Ankara, Türkiye</span></div>
+                        <div class="cv-head"><span class="cv-role">Software Engineer</span><span class="cv-date">Nov. 2025 – present</span></div>
+                        <ul class="cv-list">
+                            <li>Designed and developed a high-performance embedded Linux NAS system; implemented a multi-layer software architecture (APP, HAL, BSP) for carrier board bare-metal coding, managing peripheral components such as RTC and temperature sensors. Configured RAID-based storage architectures, set up Samba infrastructure with multi-channel optimizations, and conducted rigorous system verifications including high-speed Ethernet data transfer tests (up to 10 GbE), thermal and operational performance tests, fan operations via BIOS/OS, and MCU core code developments.</li>
+                            <li>Developed a 3-layer architecture (APP, HAL, BSP) to validate hardware integrity; verified QSPI, I2C, Classic CAN and integrated GNSS/GSM modules using AT commands over UART.</li>
+                        </ul>
+                    </div>
+                    <div class="cv-entry">
+                        <div class="cv-head"><span class="cv-org">STM Defence</span><span class="cv-date">Ankara, Türkiye</span></div>
+                        <div class="cv-head"><span class="cv-role">Candidate Embedded Software Engineer</span><span class="cv-date">Dec. 2023 – June 2024</span></div>
+                        <ul class="cv-list">
+                            <li>Generic bootloader design for STM32 MCUs with In-Application Programming.</li>
+                        </ul>
+                        <div class="cv-head"><span class="cv-role">Embedded Software Engineer Intern</span><span class="cv-date">May 2023 – Aug. 2023</span></div>
+                        <ul class="cv-list">
+                            <li>Developed RPMsg-based shared memory communication between Cortex-A53 (Yocto Linux) and Cortex-M7 (bare-metal) for high-speed data exchange.</li>
+                        </ul>
+                    </div>
+                    <div class="cv-entry">
+                        <div class="cv-head"><span class="cv-org">SPECSON Design</span><span class="cv-date">Ankara, Türkiye</span></div>
+                        <div class="cv-head"><span class="cv-role">Part-Time Electrical and Electronics Engineer</span><span class="cv-date">Jan. 2022 – May 2023</span></div>
+                        <ul class="cv-list">
+                            <li>Designed and implemented multi-axis control systems (speed, position, temperature) using STM32 MCUs and Arduino Nano for embedded applications.</li>
+                            <li>Developed GUI solutions using Nextion Display and C# for real-time monitoring of gas flow and stepper motor control systems.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="block">
+                    <h2>projects</h2>
+                    <div class="cv-entry">
+                        <div class="cv-head"><span class="cv-role">Ball-on-the-Plate Control System using PID Controller</span><span class="cv-date">graduation project</span></div>
+                        <ul class="cv-list"><li>Developed an Arduino-based PID stabilization system integrating computer vision for ball tracking and wireless telemetry for real-time performance monitoring.</li></ul>
+                    </div>
+                    <div class="cv-entry">
+                        <div class="cv-head"><span class="cv-role">JPEG Image Encoder &amp; Decoder</span><span class="cv-date">course project</span></div>
+                        <ul class="cv-list"><li>Developed a MATLAB-based pipeline for 8x8 block DCT and Huffman coding, incorporating an Adaptive Quantization method to optimize compression efficiency.</li></ul>
+                    </div>
+                    <div class="cv-entry">
+                        <div class="cv-head"><span class="cv-role">TEKNOFEST VII. TÜRKSAT Model Satellite Competition</span></div>
+                        <ul class="cv-list"><li>Served as Team Captain for ETU Callisto; contributed to C# ground control station design and led the system-level qualification process.</li></ul>
+                    </div>
+                </section>
+
+                <section class="block">
+                    <h2>education</h2>
+                    <div class="cv-entry">
+                        <div class="cv-head"><span class="cv-org">TOBB University of Economics and Technology</span><span class="cv-date">Ankara, Türkiye</span></div>
+                        <div class="cv-head"><span class="cv-role">Bachelor of Electrical and Electronics Engineering · GPA 2.84/4.00</span><span class="cv-date">Sep. 2018 – Dec. 2025</span></div>
+                        <ul class="cv-list"><li>Coursework: Computer Architecture, Digital Signal Processing, Linear Systems, Digital Control Systems</li></ul>
+                    </div>
+                </section>
+
+                <section class="block">
+                    <h2>skills</h2>
+                    <dl class="kv cv-kv">
+                        <dt>languages</dt><dd>Embedded C, C++, Python, MATLAB, Verilog</dd>
+                        <dt>protocols &amp; tools</dt><dd>CAN, UART, SPI, I2C, Git, Jira</dd>
+                    </dl>
+                </section>
+
+                <section class="block">
+                    <h2>certificates &amp; languages</h2>
+                    <dl class="kv cv-kv">
+                        <dt>certificates</dt><dd>Udemy: The C++20 Masterclass, Structural Design Patterns in Modern C++</dd>
+                        <dt>languages</dt><dd>Turkish (native) · English (professional, TOEFL ITP 503/677) · German (basic, TELC A2 49.5/60)</dd>
+                    </dl>
+                </section>
+
+                <section class="block">
+                    <h2>scholarships &amp; awards</h2>
+                    <ul class="cv-list">
+                        <li>TOBB ETÜ "İş Dünyası Burs Programı" Scholarship (2018 – 2024)</li>
+                        <li>Ranked 11,993rd in the University Entrance Exam (YKS 2018) among 2M+ candidates</li>
+                        <li>TÜBİTAK ARDEB 3501 Undergraduate Researcher Scholarship (2022)</li>
+                    </ul>
+                </section>`;
+
+        // stl → "knowledge" tab: filled from knowledge/index.json (synced from the Notion Knowledge DB)
+        const STL_KNOWLEDGE = () => `
+                <div id="kn-list"><p class="note">loading the library …</p></div>`;
+
+        // which tab is open on pages that have tabs
+        const TABS = {
+            hello: { current: 'brief', list: [['brief', 'brief'], ['autobiography', 'autobiography']] },
+            cv: { current: 'short', list: [['short', 'short'], ['detailed', 'detailed']] },
+            stl: { current: 'core', list: [['core', 'core'], ['knowledge', 'knowledge'], ['til', 'today i learned']] },
+            pickups: { current: 'follow', list: [['follow', 'things i follow'], ['links', 'links i liked']] }
+        };
+
+        // pickups → tab contents
+        const PICKUPS_FOLLOW = `
+                <section class="block">
+                    <p class="note">coming soon.</p>
+                </section>`;
+        // links i liked: shows LIKED_LINKS when there are any
+        const PICKUPS_LINKS = () => `
+                <section class="block">
+                    ${LIKED_LINKS.length
+                        ? list(LIKED_LINKS.map((l, i) => ['link-' + i, l.title, l.tag || '', hostOf(l.url)]))
+                        : '<p class="note">coming soon.</p>'}
+                </section>`;
+
+        // old links (#core, #knowledge, #til) open the stl page on the right tab
+        const HASH_ALIASES = { core: ['stl', 'core'], knowledge: ['stl', 'knowledge'], til: ['stl', 'til'], links: ['pickups', 'links'] };
+
+        // stl → tab contents
+        const STL_CORE = `
+                <section class="block">
+                    <p class="note">coming soon.</p>
+                </section>`;
+        // stl → "today i learned" tab: filled from til/index.json (built from til/*.md on deploy)
+        const STL_TIL = `
+                <div id="til-list"><p class="note">loading …</p></div>`;
+        function tabsHtml(page) {
+            const t = TABS[page];
+            return `<div class="subnav"><div class="tabs" role="tablist">` +
+                t.list.map(([id, label]) => `<button role="tab" data-tab="${id}" aria-selected="${t.current === id}">${label}</button>`).join('') +
+                `</div></div>`;
+        }
 
         // a row in the middle list: [item id, title, meta, subtitle]
         const VIEWS = {
             hello: () => `
-                <h1 class="handle">@altnskuur</h1>
-                <div class="subnav">
-                    <div class="tabs" role="tablist">
-                        <button role="tab" data-tab="brief" aria-selected="${helloTab === 'brief'}">brief</button>
-                        <button role="tab" data-tab="autobiography" aria-selected="${helloTab === 'autobiography'}">autobiography</button>
-                    </div>
-                </div>
-                ${helloTab === 'brief' ? HELLO_BRIEF : HELLO_LONG}`,
+                <h1 class="handle">selam, hello, hallo!</h1>
+                ${tabsHtml('hello')}
+                ${TABS.hello.current === 'brief' ? HELLO_BRIEF : HELLO_LONG}`,
 
-            core: () => `
-                <div class="eyebrow">core</div>
-                <h1 class="page-title">the things i build</h1>
-                <section class="block">
-                    <h2>work</h2>
-                    ${list([
-                        ['nas', 'embedded linux nas', '2025 —', 'raid, samba, kernel tuning, 10 GbE'],
-                        ['hw-validation', 'hardware validation layer', '2025 —', 'qspi · i2c · can · gnss/gsm'],
-                        ['bootloader', 'stm32 bootloader', '2024', 'in-application programming over uart'],
-                        ['rpmsg', 'rpmsg between a53 and m7', '2023', 'shared-memory messaging across cores']
-                    ])}
-                </section>
-                <section class="block">
-                    <h2>side projects</h2>
-                    ${list([['jpeg', 'jpeg encoder & decoder', 'matlab', 'dct, huffman, adaptive quantization']])}
-                </section>`,
+            cv: () => `
+                <h1 class="handle">uğur altınışık</h1>
+                ${tabsHtml('cv')}
+                ${TABS.cv.current === 'short' ? CV_SHORT : CV_LONG}`,
 
-            knowledge: () => `
-                <div class="eyebrow">knowledge</div>
-                <h1 class="page-title">what i learned today, and what i keep</h1>
-                <section class="block">
-                    ${list([
-                        ['self-notes', 'self-knowledge notes', 'notion', 'running notes'],
-                        ['deep-research', 'deep research', 'notion', 'long write-ups']
-                    ])}
-                </section>
-                <p class="note">til posts will appear here once the notion sync is live.</p>`,
+            stl: () => `
+                <h1 class="handle">standard technical library</h1>
+                ${tabsHtml('stl')}
+                ${{ core: STL_CORE, knowledge: STL_KNOWLEDGE(), til: STL_TIL }[TABS.stl.current]}`,
 
             records: () => `
                 <div class="eyebrow">records</div>
                 <h1 class="page-title">videos, vlogs and places</h1>
                 <section class="block">
-                    <h2>travel</h2>
-                    ${list(['berlin', 'budapest', 'samos', 'bratislava', 'vienna'].map(c => ['rec-' + c, c, 'visited', '']))}
-                </section>
-                <p class="note">shot on the dji osmo action 6, hosted on youtube.</p>`,
+                    <p class="note">coming soon.</p>
+                </section>`,
 
             pickups: () => `
-                <div class="eyebrow">pickups</div>
-                <h1 class="page-title">things i picked up along the way</h1>
-                <section class="block">
-                    ${list([
-                        ['diving', 'diving', 'cmas 1★', ''],
-                        ['basketball', 'basketball', 'ex-licensed', ''],
-                        ['football', 'tuesday football', 'weekly', ''],
-                        ['gym', 'gym', '2–3× / week', ''],
-                        ['languages', 'languages', 'de a2 · en', '']
-                    ])}
-                </section>`,
+                <h1 class="handle">pickups</h1>
+                ${tabsHtml('pickups')}
+                ${TABS.pickups.current === 'follow' ? PICKUPS_FOLLOW : PICKUPS_LINKS()}`,
 
             'say-hello': () => `
                 <div class="eyebrow">say 'hello altnskuur!'</div>
@@ -279,15 +424,6 @@
                 <section class="block">
                     <p>a guestbook is coming. until then, the fastest way is email:</p>
                     <p><a class="inline-open" href="mailto:m.altinisiku@gmail.com">m.altinisiku@gmail.com</a></p>
-                </section>`,
-
-            links: () => `
-                <div class="eyebrow">links i liked</div>
-                <h1 class="page-title">good stuff from around the internet</h1>
-                <section class="block">
-                    ${LIKED_LINKS.length
-                        ? list(LIKED_LINKS.map((l, i) => ['link-' + i, l.title, l.tag || '', hostOf(l.url)]))
-                        : '<p class="note">nothing here yet. the first links are on their way.</p>'}
                 </section>`
         };
 
@@ -364,10 +500,15 @@
 
         const CLOSE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
 
+        const isNarrow = () => window.innerWidth <= 1180;
         function openPanel(id) {
             const it = ITEMS[id];
             if (!it) return;
             selected = id;
+            if (it.kn) {
+                revealKnowledge(it.kn);                         // text opens under the title
+                if (isNarrow()) { $panel.classList.remove('open'); $backdrop.classList.remove('show'); return; }
+            }
             $panel.classList.remove('is-default');
             $panel.innerHTML = `
                 <article class="panel-card">
@@ -389,7 +530,9 @@
         }
 
         function closePanel() {
+            const wasKnowledge = selected && ITEMS[selected] && ITEMS[selected].kn;
             selected = null;
+            if (wasKnowledge) { kn.article = null; renderKnowledge(); }
             $panel.classList.remove('open');
             $backdrop.classList.remove('show');
             $panel.classList.add('is-default');
@@ -401,12 +544,267 @@
             document.querySelectorAll('[data-open]').forEach(b => b.classList.toggle('selected', b.dataset.open === selected && b.classList.contains('item')));
         }
 
-        function route() {
-            const id = (location.hash || '#hello').slice(1);
-            const view = VIEWS[id] ? id : 'hello';
-            renderNav(view);
-            $view.innerHTML = VIEWS[view]();
+        function afterRender() {
             startRotators();
+            if (currentView === 'stl' && TABS.stl.current === 'knowledge') loadKnowledge();
+            if (currentView === 'stl' && TABS.stl.current === 'til') loadTil();
+        }
+
+        /* ---------- knowledge library (Notion → knowledge/*.md → here) ---------- */
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        let knowledgeIndex = null;
+        const kn = {
+            byId: {}, bySlug: {}, kids: {},   // tree built from index.json
+            expanded: new Set(),              // parents whose children are visible (arrow open)
+            article: null,                    // slug whose text is open under its title
+            html: {}                          // rendered markdown cache
+        };
+        const CARET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+
+        function prettyDate(iso) {
+            if (!iso) return '';
+            const d = new Date(iso.length === 10 ? iso + 'T12:00:00Z' : iso);
+            return isNaN(d) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+        }
+        const editedOf = it => it.edited || it.updated || '';
+
+        async function loadKnowledge() {
+            const box = document.getElementById('kn-list');
+            if (!box) return;
+            try {
+                if (!knowledgeIndex) {
+                    const r = await fetch('knowledge/index.json', { cache: 'no-cache' });
+                    if (!r.ok) throw new Error(r.status);
+                    knowledgeIndex = await r.json();
+                    buildKnowledge(knowledgeIndex.items || []);
+                }
+            } catch (e) {
+                box.innerHTML = location.protocol === 'file:'
+                    ? '<p class="note">the library opens on the live site (altnskuur.github.io).</p>'
+                    : '<p class="note">coming soon.</p>';
+                return;
+            }
+            renderKnowledge();
+        }
+
+        function buildKnowledge(items) {
+            items.forEach(it => { kn.byId[it.id] = it; kn.bySlug[it.slug] = it; });
+            items.forEach(it => {
+                const p = it.parent && kn.byId[it.parent] ? it.parent : 'root';
+                (kn.kids[p] = kn.kids[p] || []).push(it);
+            });
+            // newest first: a parent counts as "edited" when anything under it was
+            const latest = it => [editedOf(it)].concat((kn.kids[it.id] || []).map(latest)).sort().pop();
+            items.forEach(it => { it._latest = latest(it); });
+            Object.values(kn.kids).forEach(list => list.sort((a, b) => b._latest.localeCompare(a._latest)));
+
+            items.forEach(it => {
+                const d = (it.domain || 'other').toLowerCase();
+                ITEMS['kn-' + it.slug] = {
+                    kn: it.slug,
+                    kicker: ['knowledge'].concat(it.path || []).map(esc).join(' › '),
+                    title: esc(it.title),
+                    tags: [esc(d)],
+                    body: (it.summary ? `<p>${esc(it.summary)}</p>` : '<p class="note">no summary yet.</p>') +
+                          `<p class="kn-edited">last edited ${esc(prettyDate(editedOf(it)))}</p>` + subPagesHtml(it)
+                };
+            });
+        }
+
+        // "sub-pages" list in the right panel (clicking one opens it in the list)
+        function subPagesHtml(it) {
+            const list = kn.kids[it.id] || [];
+            if (!list.length) return '';
+            return '<div class="kn-sub"><div class="kn-sub-title">sub-pages</div><ul class="list">' +
+                list.map(c => `<li><button class="item" data-open="kn-${esc(c.slug)}"><span class="item-title">${esc(c.title)}</span><span class="item-meta">→</span></button></li>`).join('') +
+                '</ul></div>';
+        }
+
+        function nodeHtml(it, lvl) {
+            const children = kn.kids[it.id] || [];
+            const open = kn.expanded.has(it.slug);
+            const caret = children.length
+                ? `<button class="kn-caret${open ? ' open' : ''}" data-toggle="${esc(it.slug)}" aria-expanded="${open}" aria-label="${open ? 'hide' : 'show'} sub-pages">${CARET}</button>`
+                : '<span class="kn-caret-space"></span>';
+            const article = kn.article === it.slug
+                ? `<div class="kn-article md-body" id="kn-art-${esc(it.slug)}">${kn.html[it.slug] || '<p class="note">loading …</p>'}${narrowMeta(it)}</div>`
+                : '';
+            return `<li class="kn-node" style="--lvl:${lvl}">
+                    <div class="kn-line">
+                        ${caret}
+                        <button class="item kn-row" data-open="kn-${esc(it.slug)}" aria-expanded="${kn.article === it.slug}">
+                            <span class="item-title">${esc(it.title)}</span>
+                            <span class="item-sub">last edited ${esc(prettyDate(editedOf(it)))}</span>
+                        </button>
+                    </div>
+                    ${article}
+                    ${open && children.length ? '<ul class="kn-children">' + children.map(c => nodeHtml(c, lvl + 1)).join('') + '</ul>' : ''}
+                </li>`;
+        }
+
+        // on narrow screens there's no side panel: summary + sub-pages go under the article instead
+        function narrowMeta(it) {
+            return `<div class="kn-meta-inline">${it.summary ? `<p>${esc(it.summary)}</p>` : ''}${subPagesHtml(it)}</div>`;
+        }
+
+        function renderKnowledge() {
+            const box = document.getElementById('kn-list');
+            if (!box || !knowledgeIndex) return;
+            const roots = kn.kids.root || [];
+            if (!roots.length) { box.innerHTML = '<p class="note">coming soon.</p>'; return; }
+            // Domain groups, newest group first
+            const groups = [];
+            roots.forEach(it => {
+                const d = (it.domain || 'other').toLowerCase();
+                let g = groups.find(x => x.name === d);
+                if (!g) groups.push(g = { name: d, items: [] });
+                g.items.push(it);
+            });
+            box.innerHTML = groups.map(g => `
+                <section class="block">
+                    <h2>${esc(g.name)}</h2>
+                    <ul class="kn-tree">${g.items.map(it => nodeHtml(it, 0)).join('')}</ul>
+                </section>`).join('');
+            markSelected();
+            if (kn.article) loadArticle(kn.article);
+        }
+
+        // show a page: open its parents' arrows, open its text, scroll to it
+        function revealKnowledge(slug) {
+            let it = kn.bySlug[slug];
+            for (let p = it && it.parent && kn.byId[it.parent]; p; p = p.parent && kn.byId[p.parent]) kn.expanded.add(p.slug);
+            kn.article = slug;
+            renderKnowledge();
+            const row = document.querySelector(`.kn-row[data-open="kn-${CSS.escape(slug)}"]`);
+            if (row) row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        // markdown → html: marked + DOMPurify + KaTeX, loaded only when a page is opened
+        const LIBS = {
+            js: ['https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js',
+                 'https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js',
+                 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js'],
+            css: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css'
+        };
+        let libsReady = null;
+        function loadLibs() {
+            if (libsReady) return libsReady;
+            const css = document.createElement('link');
+            css.rel = 'stylesheet'; css.href = LIBS.css;
+            document.head.appendChild(css);
+            libsReady = LIBS.js.reduce((p, src) => p.then(() => new Promise((ok, fail) => {
+                const sc = document.createElement('script');
+                sc.src = src; sc.onload = ok; sc.onerror = fail;
+                document.head.appendChild(sc);
+            })), Promise.resolve());
+            libsReady.catch(() => { libsReady = null; });
+            return libsReady;
+        }
+
+        function renderMarkdown(md) {
+            // 1) park code so math detection can't touch it
+            const code = [];
+            md = md.replace(/```[\s\S]*?```|`[^`\n]+`/g, m => { code.push(m); return '\u0000C' + (code.length - 1) + '\u0000'; });
+            // 2) pull out math ($$block$$ and $inline$)
+            const math = [];
+            md = md.replace(/\$\$([\s\S]+?)\$\$/g, (m, tex) => { math.push([tex, true]); return '@@MATH' + (math.length - 1) + '@@'; });
+            md = md.replace(/\$(?!\s)([^$\n]+?)(?<!\s)\$(?!\d)/g, (m, tex) => { math.push([tex, false]); return '@@MATH' + (math.length - 1) + '@@'; });
+            // 3) put code back, render markdown, sanitize
+            md = md.replace(/\u0000C(\d+)\u0000/g, (m, i) => code[+i]);
+            let html = DOMPurify.sanitize(marked.parse(md));
+            // 4) render math
+            html = html.replace(/@@MATH(\d+)@@/g, (m, i) => {
+                const [tex, display] = math[+i];
+                try { return katex.renderToString(tex, { displayMode: display, throwOnError: false }); }
+                catch (e) { return esc(tex); }
+            });
+            return html;
+        }
+
+        // the page text, opened under its title in the middle column
+        async function loadArticle(slug) {
+            if (kn.html[slug]) return;
+            const it = kn.bySlug[slug];
+            try {
+                const [r] = await Promise.all([fetch(it.file, { cache: 'no-cache' }), loadLibs()]);
+                if (!r.ok) throw new Error(r.status);
+                kn.html[slug] = renderMarkdown(await r.text());
+            } catch (e) {
+                kn.html[slug] = '<p class="note">couldn\'t load this page right now.</p>';
+                setTimeout(() => { delete kn.html[slug]; }, 0);   // try again next time it's opened
+            }
+            const box = document.getElementById('kn-art-' + slug);
+            if (box && kn.article === slug) {
+                box.innerHTML = kn.html[slug] + narrowMeta(it);
+                box.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
+            }
+        }
+
+        /* ---------- today i learned (til/*.md → til/index.json → here) ---------- */
+        const til = { index: null, open: null, html: {} };
+
+        async function loadTil() {
+            const box = document.getElementById('til-list');
+            if (!box) return;
+            try {
+                if (!til.index) {
+                    const r = await fetch('til/index.json', { cache: 'no-cache' });
+                    if (!r.ok) throw new Error(r.status);
+                    til.index = await r.json();
+                }
+            } catch (e) {
+                // opened as a local file: fetch is blocked. online but no list yet: nothing to show
+                box.innerHTML = location.protocol === 'file:'
+                    ? '<p class="note">today i learned opens on the live site (altnskuur.github.io).</p>'
+                    : '<p class="note">coming soon.</p>';
+                return;
+            }
+            renderTil();
+        }
+
+        function renderTil() {
+            const box = document.getElementById('til-list');
+            if (!box || !til.index) return;
+            const entries = til.index.entries || [];
+            if (!entries.length) { box.innerHTML = '<p class="note">coming soon.</p>'; return; }
+            box.innerHTML = '<ol class="til-list">' + entries.map(e => {
+                const open = til.open === e.file;
+                return `<li>
+                    <button class="til-row${open ? ' open' : ''}" data-til="${esc(e.file)}" aria-expanded="${open}">
+                        <span class="til-n">${e.n}.</span><span class="til-title">${esc(e.title)}</span>
+                    </button>
+                    ${open ? `<div class="til-text md-body" id="til-text">${e.date ? `<p class="til-date">${esc(prettyDate(e.date))}</p>` : ''}${til.html[e.file] || '<p class="note">loading …</p>'}</div>` : ''}
+                </li>`;
+            }).join('') + '</ol>';
+            if (til.open && !til.html[til.open]) loadTilText(til.open);
+        }
+
+        async function loadTilText(file) {
+            try {
+                const [r] = await Promise.all([fetch(file, { cache: 'no-cache' }), loadLibs()]);
+                if (!r.ok) throw new Error(r.status);
+                const md = (await r.text()).replace(/^\s*[^\n]*\n?/, '');   // first line is the header, already shown
+                til.html[file] = renderMarkdown(md) || '<p class="note">nothing written yet.</p>';
+            } catch (e) {
+                til.html[file] = '<p class="note">couldn\'t load this day right now.</p>';
+                setTimeout(() => { delete til.html[file]; }, 0);
+            }
+            if (til.open === file) renderTil();
+        }
+
+        let currentView = 'hello';
+        function route() {
+            let id = (location.hash || '#hello').slice(1);
+            if (HASH_ALIASES[id]) { TABS[HASH_ALIASES[id][0]].current = HASH_ALIASES[id][1]; id = HASH_ALIASES[id][0]; }
+            const view = VIEWS[id] ? id : 'hello';
+            currentView = view;
+            renderNav(view);
+            // on phones the nav is one scrolling row: keep the active item visible
+            if (window.innerWidth <= 720) { const act = $nav.querySelector('.active'); if (act) $nav.scrollLeft = act.offsetLeft - 16; }
+            $view.innerHTML = VIEWS[view]();
+            afterRender();
             closePanel();
             document.title = (view === 'hello' ? 'Uğur Altınışık' : NAV.find(n => n.id === view).label + ' · Uğur Altınışık');
         }
@@ -415,28 +813,59 @@
         $view.addEventListener('click', e => {
             const tab = e.target.closest('[data-tab]');
             if (tab) {
-                helloTab = tab.dataset.tab;
-                $view.innerHTML = VIEWS.hello();
-                startRotators();
+                TABS[currentView].current = tab.dataset.tab;
+                $view.innerHTML = VIEWS[currentView]();
+                afterRender();
                 closePanel();
+                return;
+            }
+            const day = e.target.closest('[data-til]');
+            if (day) {                                          // today i learned: open / close a day under its header
+                til.open = til.open === day.dataset.til ? null : day.dataset.til;
+                renderTil();
+                return;
+            }
+            const caret = e.target.closest('[data-toggle]');
+            if (caret) {                                        // arrow: show / hide sub-pages only
+                const slug = caret.dataset.toggle;
+                kn.expanded.has(slug) ? kn.expanded.delete(slug) : kn.expanded.add(slug);
+                renderKnowledge();
                 return;
             }
             const b = e.target.closest('[data-open]');
             if (!b) return;
             if (selected === b.dataset.open) closePanel(); else openPanel(b.dataset.open);
         });
-        $panel.addEventListener('click', e => { if (e.target.closest('#panel-close')) closePanel(); });
+        $panel.addEventListener('click', e => {
+            if (e.target.closest('#panel-close')) return closePanel();
+            const b = e.target.closest('[data-open]');          // sub-pages open in the same panel
+            if (b) openPanel(b.dataset.open);
+        });
         $backdrop.addEventListener('click', closePanel);
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
         window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
 
-        // theme toggle
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const root = document.documentElement;
-            const isDark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-            root.dataset.theme = isDark ? 'light' : 'dark';
-            try { localStorage.setItem('theme', root.dataset.theme); } catch (e) { }
+        // theme toggle: moon in light mode, sun in dark mode
+        const $toggle = document.getElementById('theme-toggle');
+        const darkQuery = matchMedia('(prefers-color-scheme: dark)');
+        function isDark() {
+            const t = document.documentElement.dataset.theme;
+            return t ? t === 'dark' : darkQuery.matches;
+        }
+        function syncToggle() {
+            const dark = isDark();
+            $toggle.classList.toggle('is-dark', dark);
+            const label = dark ? 'switch to light mode' : 'switch to dark mode';
+            $toggle.title = label;
+            $toggle.setAttribute('aria-label', label);
+        }
+        $toggle.addEventListener('click', () => {
+            document.documentElement.dataset.theme = isDark() ? 'light' : 'dark';
+            try { localStorage.setItem('theme', document.documentElement.dataset.theme); } catch (e) { }
+            syncToggle();
         });
+        darkQuery.addEventListener('change', syncToggle);   // follows the system setting until the visitor picks one
+        syncToggle();
 
         route();
     })();

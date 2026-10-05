@@ -1,0 +1,5 @@
+# generated on every deploy by scripts/build_til_index.py
+til/index.json
+
+# local helper files from Claude
+Claude outputs/

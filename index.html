@@ -98,7 +98,7 @@
     <main class="terminal" id="terminal" aria-label="Interactive terminal">
         <div id="output" aria-live="polite"></div>
         <div class="input-line">
-            <span class="prompt"><span class="user">visitor</span><span class="muted">@</span><span class="host">altnskuur.github.io</span><span class="muted">:~$</span></span>
+            <span class="prompt" id="prompt"><span class="user">visitor</span><span class="muted">@</span><span class="host">altnskuur.github.io</span><span class="muted">:~$</span></span>
             <input id="cmd" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                 aria-label="Type a command" autofocus>
         </div>
@@ -121,6 +121,16 @@
                 email: 'mailto:m.altinisiku@gmail.com'
             };
 
+            // ---------- tiny file system ----------
+            // folders you can cd into, and the files inside them (cat <file>)
+            const FS = {
+                'hello-world': {
+                    'brief.md': "# brief\n\n## who am i\ni was born in 2000, so you decide how old i am. 26? 27? i don't know either. i was born in konya and i'm from tire/izmir, but i've lived in ankara since 2002. what a cultural chaos. i love cooking and eating, and i'm sure i'll open a restaurant someday. i'm a 1-star cmas diver. i even bought a camera for it, and now i have to enjoy recording my life with it.\n\n## what i did\ni enrolled at tobb etü in 2018 with a full scholarship. back then, i felt like i was achieving a lot, but i learned it was nothing. i graduated with a 2.84/4.00 gpa (i know it's not great, but i'm trying to make up for it). i've worked at 3 companies as an embedded software engineer (2 of them during my student years), on defence industry projects. i really want to share them here, but you know, confidentiality issues.\n\n## what i'm doing\n- studying: toefl ibt, c++\n- building: altnskuur.github.io, cpp-hashlib\n- listening: 2026 (my spotify playlist)\n- watching: supernatural, true detective\n- reading: Bozkurt Mustafa Kemal, Zamanın Kısa Tarihi\n\n## what's next\ni miss academia so much. my next goal is a master's degree. i want to dive more, record my life more, cook more tasty food and deep dive into c++. who knows, maybe someday i'll dive at most of the popular dive spots, serve top-quality plates to my friends, attend cppcon, and bring my hands-on industry work and my academic work together.",
+                    'autobiography.md': "# autobiography\n\ncoming soon."
+                }
+            };
+            let cwd = '~';   // '~' or a folder name from FS
+
             const history = [];
             let histIdx = 0;
             let misses = 0;
@@ -139,9 +149,106 @@
             function cmdLink(c) {
                 return '<span class="bright">' + esc(c) + '</span>';   // plain text: visitors type, they don't click
             }
-            function echoPrompt(raw) {
-                print('<span class="user">visitor</span><span class="muted">@</span><span class="host">altnskuur.github.io</span><span class="muted">:~$</span> <span class="bright">' + esc(raw) + '</span>');
+            function promptHtml() {
+                const path = cwd === '~' ? '~' : '~/' + cwd;
+                return '<span class="user">visitor</span><span class="muted">@</span><span class="host">altnskuur.github.io</span><span class="muted">:' + esc(path) + '$</span>';
             }
+            function echoPrompt(raw) {
+                print(promptHtml() + ' <span class="bright">' + esc(raw) + '</span>');
+            }
+            function setCwd(dir) {
+                cwd = dir;
+                document.getElementById('prompt').innerHTML = promptHtml();
+            }
+            // print a .md file: headings bright, everything else as-is
+            function printFile(text) {
+                blank();
+                text.split('\n').forEach(l => print(/^#/.test(l) ? '<span class="bright">' + esc(l) + '</span>' : esc(l)));
+                blank();
+            }
+            // resolve "brief.md", "hello-world/brief.md", "./brief.md", "~/hello-world/brief.md"
+            function findFile(arg) {
+                const parts = arg.replace(/^~\//, '').replace(/^\.\//, '').split('/').filter(Boolean);
+                if (parts.length === 1 && cwd !== '~') return FS[cwd][parts[0]] !== undefined ? FS[cwd][parts[0]] : null;
+                if (parts.length === 2 && FS[parts[0]]) return FS[parts[0]][parts[1]] !== undefined ? FS[parts[0]][parts[1]] : null;
+                return null;
+            }
+            // ---------- history.md: built live from the github repo ----------
+            // versions = git tags (v0.0.0, v1.0.0 …), entries = commits on the default branch
+            const REPO = 'altnskuur/altnskuur.github.io';
+            const HISTORY_CACHE_KEY = 'history-md-v1';
+            const HISTORY_TTL = 10 * 60 * 1000;   // reuse for 10 min (github allows 60 requests/hour per visitor)
+            let historyLoading = false;
+
+            function isHistory(arg) {
+                const a = arg.replace(/^~\//, '').replace(/^\.\//, '');
+                return a === 'history.md' ? cwd === '~' : (a === '../history.md' && cwd !== '~');
+            }
+            function shortDate(iso) { return (iso || '').slice(0, 10); }
+
+            async function loadHistory() {
+                try {
+                    const cached = JSON.parse(sessionStorage.getItem(HISTORY_CACHE_KEY) || 'null');
+                    if (cached && Date.now() - cached.at < HISTORY_TTL) return cached.data;
+                } catch (e) { }
+                const api = 'https://api.github.com/repos/' + REPO;
+                const [cRes, tRes] = await Promise.all([fetch(api + '/commits?per_page=100'), fetch(api + '/tags?per_page=100')]);
+                if (!cRes.ok) throw new Error(cRes.status === 403 ? 'rate' : 'http ' + cRes.status);
+                const commits = await cRes.json();
+                const tags = tRes.ok ? await tRes.json() : [];
+                const data = {
+                    commits: commits.map(c => ({ sha: c.sha, date: shortDate(c.commit.author && c.commit.author.date), msg: (c.commit.message || '').split('\n')[0] })),
+                    tags: tags.map(t => ({ name: t.name, sha: t.commit.sha }))
+                };
+                try { sessionStorage.setItem(HISTORY_CACHE_KEY, JSON.stringify({ at: Date.now(), data })); } catch (e) { }
+                return data;
+            }
+
+            function printHistory(data) {
+                const tagsBySha = {};
+                data.tags.forEach(t => { (tagsBySha[t.sha] = tagsBySha[t.sha] || []).push(t.name); });
+                blank();
+                print('<span class="bright"># history</span>');
+                print('<span class="muted">versions and commits from github.com/' + esc(REPO) + '</span>');
+                let open = false;
+                data.commits.forEach((c, i) => {
+                    if (tagsBySha[c.sha]) {
+                        blank();
+                        print('<span class="bright">## ' + esc(tagsBySha[c.sha].join(', ')) + '</span> <span class="muted">· ' + esc(c.date) + '</span>');
+                        open = true;
+                    } else if (!open) {
+                        blank();
+                        print('<span class="bright">## unreleased</span>');
+                        open = true;
+                    }
+                    print('- <span class="muted">' + esc(c.date) + '</span>  <span class="host">' + esc(c.sha.slice(0, 7)) + '</span>  ' + esc(c.msg));
+                });
+                if (!data.commits.length) print('no commits yet.', 'muted');
+                blank();
+            }
+
+            async function catHistory() {
+                if (historyLoading) return;
+                historyLoading = true;
+                const loading = document.createElement('div');
+                loading.className = 'line muted';
+                loading.textContent = 'reading history from github ...';
+                out.appendChild(loading);
+                try {
+                    const data = await loadHistory();
+                    loading.remove();
+                    printHistory(data);
+                } catch (err) {
+                    loading.remove();
+                    print('cat: history.md: ' + (err.message === 'rate'
+                        ? "github says i asked too many times. try again in a bit."
+                        : "couldn't reach github right now."), 'err');
+                    print('<span class="muted">full history: github.com/' + esc(REPO) + '/commits</span>');
+                }
+                historyLoading = false;
+                input.scrollIntoView({ block: 'nearest' });
+            }
+
             function go(url, label) {
                 print('<span class="muted">launching ' + esc(label) + ' ...</span>');
                 setTimeout(() => { window.location.href = url; }, 450);
@@ -165,7 +272,7 @@
             }
 
             // ---------- commands ----------
-            const PAGES = ['core', 'knowledge', 'records', 'pickups', 'cv', 'say-hello', 'links'];
+            const PAGES = ['stl', 'records', 'pickups', 'cv', 'say-hello'];
 
             const commands = {
                 help() {
@@ -176,13 +283,12 @@
                     blank();
                     const rows = [
                         [UI_CMD, "we're trying to build the best ui with claude!"],
-                        ['core', 'my projects, we call them core here'],
-                        ['knowledge', 'i try to produce technical outputs'],
+                        ['hello-world', 'who am i? cd here and cat the files'],
+                        ['stl', 'standard technical library: core, knowledge, today i learned'],
                         ['records', 'you can check out my adventures'],
                         ['pickups', 'some things i like to follow'],
                         ['cv', 'some formal stuff'],
-                        ['say-hello', 'leave me a lovely message'],
-                        ['links', 'links i liked around the internet']
+                        ['say-hello', 'leave me a lovely message']
                     ];
                     rows.forEach(([c, d]) => print('<div class="help-row">' + cmdLink(c) + '<span class="muted">- ' + esc(d) + '</span></div>'));
                     blank();
@@ -190,12 +296,14 @@
                     blank();
                 },
                 ui() { go('portfolio.html', 'the ui'); },
-                core() { go('portfolio.html#core', 'core'); },
-                knowledge() { go('portfolio.html#knowledge', 'knowledge'); },
+                stl() { go('portfolio.html#stl', 'standard technical library'); },
+                core() { go('portfolio.html#core', 'stl → core'); },
+                knowledge() { go('portfolio.html#knowledge', 'stl → knowledge'); },
+                til() { go('portfolio.html#til', 'stl → today i learned'); },
                 records() { go('portfolio.html#records', 'records'); },
                 pickups() { go('portfolio.html#pickups', 'pickups'); },
                 'say-hello'() { go('portfolio.html#say-hello', "say 'hello altnskuur!'"); },
-                links() { go('portfolio.html#links', 'links i liked'); },
+                links() { go('portfolio.html#links', 'pickups → links i liked'); },
                 about() {
                     blank();
                     print('<span class="bright">uğur altınışık</span> — software engineer at meva avionics, ankara.');
@@ -207,7 +315,15 @@
                     blank();
                 },
                 ls() {
-                    print(PAGES.map(cmdLink).join('    '));
+                    if (cwd !== '~') return print(Object.keys(FS[cwd]).map(cmdLink).join('    '));
+                    print(Object.keys(FS).map(d => '<span class="host">' + esc(d) + '/</span>').concat(PAGES.map(cmdLink), [cmdLink('history.md')]).join('    '));
+                },
+                cat(args) {
+                    if (!args[0]) return print("usage: cat <file>   (try: cd hello-world, then ls)", 'muted');
+                    if (isHistory(args[0])) return catHistory();
+                    const text = findFile(args[0]);
+                    if (text === null) return print('cat: ' + esc(args[0]) + ': no such file or directory', 'err');
+                    printFile(text);
                 },
                 github() { openTab(LINKS.github, 'github'); },
                 linkedin() { openTab(LINKS.linkedin, 'linkedin'); },
@@ -216,7 +332,7 @@
                     window.location.href = LINKS.email;
                 },
                 whoami() { print('visitor. a curious one, apparently.'); },
-                pwd() { print('/home/visitor'); },
+                pwd() { print('/home/visitor' + (cwd === '~' ? '' : '/' + cwd)); },
                 date() { print(esc(new Date().toString())); },
                 history() {
                     history.forEach((h, i) => print('<span class="muted">' + String(i + 1).padStart(4, ' ') + '</span>  ' + esc(h)));
@@ -229,12 +345,12 @@
             };
             // aliases
             [UI_CMD, './altnskuur.ui', 'altnskuur.ui', 'portfolio'].forEach(a => commands[a] = commands.ui);
-            commands.cv = () => go('cv.html', 'cv');
+            commands.cv = () => go('portfolio.html#cv', 'cv');
             commands['?'] = commands.help;
             commands['man'] = commands.help;
             commands['mail'] = commands.email;
 
-            const COMPLETIONS = [UI_CMD, HELP_CMD, 'core', 'knowledge', 'records', 'pickups', 'cv', 'say-hello', 'links', 'about', 'ls', 'github', 'linkedin', 'email', 'whoami', 'history', 'clear', 'sudo', 'portfolio'];
+            const COMPLETIONS = [UI_CMD, HELP_CMD, 'hello-world', 'stl', 'records', 'pickups', 'cv', 'say-hello', 'about', 'ls', 'github', 'linkedin', 'email', 'whoami', 'history', 'clear', 'sudo', 'portfolio'];
 
             function run(raw) {
                 // accept commands typed with quotes too: '.\altnskuur.ui'
@@ -249,9 +365,16 @@
 
                 if (key === 'cd' || key === 'open') {
                     const arg = args[0] || '';
+                    if (key === 'cd') {
+                        if (!arg || arg === '~' || arg === '..' || arg === '../' || arg === '/') {
+                            if (cwd === '~') return print('<span class="muted">you are already home.</span>');
+                            misses = 0; return setCwd('~');
+                        }
+                        const dir = arg.replace(/^~\//, '').replace(/^\.\.\//, '').replace(/^\.\//, '').replace(/\/$/, '').toLowerCase();
+                        if (FS[dir]) { misses = 0; return setCwd(dir); }
+                    }
                     const target = arg.replace(/^[./\\]+/, '').replace(/\.html$/, '').toLowerCase();
-                    if (!target || target === '~') return print('<span class="muted">you are already home.</span>');
-                    if (PAGES.includes(target)) { misses = 0; return commands[target](); }
+                    if (PAGES.includes(target) || ['core', 'knowledge', 'til', 'links'].includes(target)) { misses = 0; return commands[target](); }
                     if (target === 'ui' || target === 'portfolio' || target === 'hello') { misses = 0; return commands.ui(); }
                     misses++;
                     return print('bash: ' + esc(key) + ': ' + esc(arg) + ': no such file or directory' + (misses > 1 ? ". that's " + misses + ' misses in a row.' : ''), 'err');
@@ -286,10 +409,14 @@
                     e.preventDefault();
                 } else if (e.key === 'Tab') {
                     e.preventDefault();
-                    const v = input.value.toLowerCase();
+                    const v = input.value;
                     if (!v) return;
-                    const hits = COMPLETIONS.filter(c => c.startsWith(v));
-                    if (hits.length === 1) input.value = hits[0];
+                    const words = v.split(' ');
+                    let pool, last = words[words.length - 1].toLowerCase();
+                    if (words.length > 1) pool = cwd === '~' ? Object.keys(FS).map(d => d + '/').concat(PAGES, ['history.md']) : Object.keys(FS[cwd]).concat(['..', '../history.md']);
+                    else { pool = COMPLETIONS.concat(['cat', 'cd', 'pwd']); }
+                    const hits = pool.filter(c => c.startsWith(last));
+                    if (hits.length === 1) { words[words.length - 1] = hits[0]; input.value = words.join(' '); }
                     else if (hits.length > 1) { echoPrompt(input.value); print(hits.map(esc).join('    '), 'muted'); }
                 } else if (e.key === 'l' && e.ctrlKey) {
                     e.preventDefault();
