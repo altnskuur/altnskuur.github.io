@@ -355,7 +355,8 @@
             hello: { current: 'brief', list: [['brief', 'brief'], ['autobiography', 'autobiography']] },
             cv: { current: 'short', list: [['short', 'short'], ['detailed', 'detailed']] },
             stl: { current: 'core', list: [['core', 'core'], ['knowledge', 'knowledge'], ['til', 'today i learned']] },
-            pickups: { current: 'follow', list: [['follow', 'things i follow'], ['links', 'links i liked']] }
+            pickups: { current: 'follow', list: [['follow', 'things i follow'], ['links', 'links i liked']] },
+            records: { current: 'til', list: [['videos', 'videos'], ['til', 'til']] }   // til always the rightmost tab
         };
 
         // pickups → tab contents
@@ -381,7 +382,7 @@
                 </section>`;
         // stl → "today i learned" tab: filled from til/index.json (built from til/*.md on deploy)
         const STL_TIL = `
-                <div id="til-list"><p class="note">loading …</p></div>`;
+                <div class="til-box" data-scope="technical"><p class="note">loading …</p></div>`;
         function tabsHtml(page) {
             const t = TABS[page];
             return `<div class="subnav"><div class="tabs" role="tablist">` +
@@ -407,11 +408,11 @@
                 ${{ core: STL_CORE, knowledge: STL_KNOWLEDGE(), til: STL_TIL }[TABS.stl.current]}`,
 
             records: () => `
-                <div class="eyebrow">records</div>
-                <h1 class="page-title">videos, vlogs and places</h1>
-                <section class="block">
-                    <p class="note">coming soon.</p>
-                </section>`,
+                <h1 class="handle">records</h1>
+                ${tabsHtml('records')}
+                ${TABS.records.current === 'til'
+                    ? '<div class="til-box" data-scope="all"><p class="note">loading …</p></div>'
+                    : '<section class="block"><p class="note">coming soon.</p></section>'}`,
 
             pickups: () => `
                 <h1 class="handle">pickups</h1>
@@ -547,7 +548,7 @@
         function afterRender() {
             startRotators();
             if (currentView === 'stl' && TABS.stl.current === 'knowledge') loadKnowledge();
-            if (currentView === 'stl' && TABS.stl.current === 'til') loadTil();
+            if (document.querySelector('.til-box')) loadTil();      // stl → til (technical) and records → til (all)
         }
 
         /* ---------- knowledge library (Notion → knowledge/*.md → here) ---------- */
@@ -742,53 +743,117 @@
             }
         }
 
-        /* ---------- today i learned (til/*.md → til/index.json → here) ---------- */
-        const til = { index: null, open: null, html: {} };
+        /* ---------- today i learned ----------
+           notes live in til/<number>_<name>.md (first line after the front matter = header).
+           every note shows under records → til; notes with "technical: true" also under stl → til.
+           list source: til/index.json (built on deploy) → fallback: ask GitHub which files are in til/ */
+        const TIL_REPO = 'altnskuur/altnskuur.github.io';
+        const til = { entries: null, open: null, html: {} };
+
+        // "---\ntechnical: true\n---\n# header\nbody"  →  { meta, header, body }
+        function parseTil(text) {
+            let lines = text.replace(/\r/g, '').split('\n');
+            const meta = {};
+            if (lines[0] && lines[0].trim() === '---') {
+                const end = lines.indexOf('---', 1);
+                if (end > 0) {
+                    lines.slice(1, end).forEach(l => { const i = l.indexOf(':'); if (i > 0) meta[l.slice(0, i).trim().toLowerCase()] = l.slice(i + 1).trim().replace(/^['"]|['"]$/g, ''); });
+                    lines = lines.slice(end + 1);
+                }
+            }
+            while (lines.length && !lines[0].trim()) lines.shift();
+            const header = lines.length ? lines.shift().replace(/^#+\s*/, '').trim() : '';
+            return { meta, header, body: lines.join('\n').trim() };
+        }
+        const tilUrl = file => 'til/' + encodeURIComponent(file);       // "#1_x.md" needs %23
+        const isTrue = v => /^(true|yes|1|on)$/i.test(v || '');
+
+        async function tilFromIndex() {
+            const r = await fetch('til/index.json', { cache: 'no-cache' });
+            if (!r.ok) throw new Error(r.status);
+            return (await r.json()).entries || [];
+        }
+
+        // no index.json yet: ask GitHub for the file list (cached 10 min), read each file from this site
+        async function tilFromGitHub() {
+            let names = null;
+            try { const c = JSON.parse(sessionStorage.getItem('til-files') || 'null'); if (c && Date.now() - c.at < 600000) names = c.names; } catch (e) { }
+            if (!names) {
+                const r = await fetch(`https://api.github.com/repos/${TIL_REPO}/contents/til`);
+                if (r.status === 404) return [];                         // no til folder yet
+                if (!r.ok) throw new Error(r.status);
+                names = (await r.json()).filter(f => f.type === 'file').map(f => f.name);
+                try { sessionStorage.setItem('til-files', JSON.stringify({ at: Date.now(), names })); } catch (e) { }
+            }
+            const files = names.filter(n => /\.md$/i.test(n) && !n.startsWith('_') && /^#?\d+/.test(n));
+            const entries = await Promise.all(files.map(async name => {
+                const r = await fetch(tilUrl(name), { cache: 'no-cache' });
+                if (!r.ok) return null;
+                const { meta, header } = parseTil(await r.text());
+                const m = name.match(/^#?(\d+)[_\- ]?(.*)\.md$/i);
+                return { n: +m[1], title: header || m[2] || name, technical: isTrue(meta.technical), file: name };
+            }));
+            return entries.filter(Boolean).sort((a, b) => b.n - a.n);
+        }
 
         async function loadTil() {
-            const box = document.getElementById('til-list');
-            if (!box) return;
-            try {
-                if (!til.index) {
-                    const r = await fetch('til/index.json', { cache: 'no-cache' });
-                    if (!r.ok) throw new Error(r.status);
-                    til.index = await r.json();
+            if (!til.entries) {
+                try { til.entries = await tilFromIndex(); }
+                catch (e) {
+                    try { til.entries = await tilFromGitHub(); }
+                    catch (e2) {
+                        document.querySelectorAll('.til-box').forEach(box => {
+                            box.innerHTML = location.protocol === 'file:'
+                                ? '<p class="note">today i learned opens on the live site (altnskuur.github.io).</p>'
+                                : '<p class="note">couldn\'t load the notes right now. try again in a bit.</p>';
+                        });
+                        return;
+                    }
                 }
-            } catch (e) {
-                // opened as a local file: fetch is blocked. online but no list yet: nothing to show
-                box.innerHTML = location.protocol === 'file:'
-                    ? '<p class="note">today i learned opens on the live site (altnskuur.github.io).</p>'
-                    : '<p class="note">coming soon.</p>';
-                return;
             }
             renderTil();
         }
 
         function renderTil() {
-            const box = document.getElementById('til-list');
-            if (!box || !til.index) return;
-            const entries = til.index.entries || [];
-            if (!entries.length) { box.innerHTML = '<p class="note">coming soon.</p>'; return; }
-            box.innerHTML = '<ol class="til-list">' + entries.map(e => {
-                const open = til.open === e.file;
-                return `<li>
-                    <button class="til-row${open ? ' open' : ''}" data-til="${esc(e.file)}" aria-expanded="${open}">
-                        <span class="til-n">${e.n}.</span><span class="til-title">${esc(e.title)}</span>
-                    </button>
-                    ${open ? `<div class="til-text md-body" id="til-text">${e.date ? `<p class="til-date">${esc(prettyDate(e.date))}</p>` : ''}${til.html[e.file] || '<p class="note">loading …</p>'}</div>` : ''}
-                </li>`;
-            }).join('') + '</ol>';
+            if (!til.entries) return;
+            document.querySelectorAll('.til-box').forEach(box => {
+                const list = box.dataset.scope === 'technical' ? til.entries.filter(e => e.technical) : til.entries;
+                if (!list.length) { box.innerHTML = '<p class="note">coming soon.</p>'; return; }
+                box.innerHTML = '<ol class="til-list">' + list.map(e => {
+                    const open = til.open === e.file;
+                    return `<li>
+                        <button class="til-row${open ? ' open' : ''}" data-til="${esc(e.file)}" aria-expanded="${open}">#${e.n}_${esc(e.title)}</button>
+                        ${open ? `<div class="til-text md-body">${til.html[e.file] || '<p class="note">loading …</p>'}</div>` : ''}
+                    </li>`;
+                }).join('') + '</ol>';
+            });
             if (til.open && !til.html[til.open]) loadTilText(til.open);
+        }
+
+        // photos / links written relative to the note ("images/belgrade.jpg") point into til/
+        function fixRelativePaths(html, folder) {
+            const box = document.createElement('div');
+            box.innerHTML = html;
+            const base = new URL(folder, location.href);
+            box.querySelectorAll('img[src], a[href]').forEach(el => {
+                const attr = el.tagName === 'IMG' ? 'src' : 'href';
+                const v = el.getAttribute(attr);
+                if (!v || /^([a-z]+:|\/|#)/i.test(v)) return;        // absolute, root or #anchor: leave as is
+                el.setAttribute(attr, new URL(v, base).href);
+            });
+            box.querySelectorAll('img').forEach(img => { img.loading = 'lazy'; });
+            box.querySelectorAll('a[href^="http"]').forEach(a => { if (!a.href.startsWith(location.origin)) { a.target = '_blank'; a.rel = 'noopener noreferrer'; } });
+            return box.innerHTML;
         }
 
         async function loadTilText(file) {
             try {
-                const [r] = await Promise.all([fetch(file, { cache: 'no-cache' }), loadLibs()]);
+                const [r] = await Promise.all([fetch(tilUrl(file), { cache: 'no-cache' }), loadLibs()]);
                 if (!r.ok) throw new Error(r.status);
-                const md = (await r.text()).replace(/^\s*[^\n]*\n?/, '');   // first line is the header, already shown
-                til.html[file] = renderMarkdown(md) || '<p class="note">nothing written yet.</p>';
+                const { body } = parseTil(await r.text());         // front matter + header are not repeated
+                til.html[file] = fixRelativePaths(renderMarkdown(body), 'til/') || '<p class="note">nothing written yet.</p>';
             } catch (e) {
-                til.html[file] = '<p class="note">couldn\'t load this day right now.</p>';
+                til.html[file] = '<p class="note">couldn\'t load this note right now.</p>';
                 setTimeout(() => { delete til.html[file]; }, 0);
             }
             if (til.open === file) renderTil();
@@ -820,7 +885,7 @@
                 return;
             }
             const day = e.target.closest('[data-til]');
-            if (day) {                                          // today i learned: open / close a day under its header
+            if (day) {                                          // today i learned: open / close a note under its header
                 til.open = til.open === day.dataset.til ? null : day.dataset.til;
                 renderTil();
                 return;

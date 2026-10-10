@@ -248,25 +248,30 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
     .kn-meta-inline > p { color: var(--muted); }
 }
 
-/* today i learned */
-.til-list { list-style: none; margin: 0 -.75rem; }
+/* today i learned: plain headers, underlined when open, text under it with a line on the left */
+.til-list { list-style: none; }
+.til-list li { margin-bottom: .2rem; }
 .til-row {
-    display: flex; gap: .6rem; align-items: baseline;
-    width: 100%; text-align: left;
-    padding: .55rem .75rem;
-    border-radius: 10px;
-    transition: background-color .15s;
+    display: block;
+    text-align: left;
+    padding: .3rem 0;
+    color: var(--text-strong);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1.5px;
+    transition: text-decoration-color .15s;
 }
-.til-row:hover, .til-row:focus-visible, .til-row.open { background: var(--bg-hover); outline: none; }
-.til-n { color: var(--faint); font-variant-numeric: tabular-nums; min-width: 1.6rem; text-align: right; }
-.til-title { color: var(--text-strong); }
+.til-row:hover { text-decoration-color: var(--faint); }
+.til-row.open { text-decoration-color: currentColor; }
+.til-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .til-text {
-    margin: .2rem 0 1rem 2.95rem;
+    margin: .35rem 0 1.1rem .2rem;
     padding: .1rem 0 .1rem 1rem;
     border-left: 2px solid var(--line);
     animation: panel-in .2s ease-out;
 }
-.til-date { color: var(--muted); font-size: .8rem; }
+.til-text img { display: block; margin: .6rem 0; }
 
 /* cv page */
 .cv-kv { grid-template-columns: 9.5rem 1fr; gap: .45rem 1.25rem; }
