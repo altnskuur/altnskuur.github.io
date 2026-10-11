@@ -356,7 +356,7 @@
             cv: { current: 'short', list: [['short', 'short'], ['detailed', 'detailed']] },
             stl: { current: 'core', list: [['core', 'core'], ['knowledge', 'knowledge'], ['til', 'today i learned']] },
             pickups: { current: 'follow', list: [['follow', 'things i follow'], ['links', 'links i liked']] },
-            records: { current: 'til', list: [['videos', 'videos'], ['til', 'til']] }   // til always the rightmost tab
+            records: { current: 'til', list: [['collection', 'collection'], ['til', 'today i learned']] }   // til always the rightmost tab
         };
 
         // pickups → tab contents
@@ -373,7 +373,7 @@
                 </section>`;
 
         // old links (#core, #knowledge, #til) open the stl page on the right tab
-        const HASH_ALIASES = { core: ['stl', 'core'], knowledge: ['stl', 'knowledge'], til: ['stl', 'til'], links: ['pickups', 'links'] };
+        const HASH_ALIASES = { core: ['stl', 'core'], knowledge: ['stl', 'knowledge'], til: ['stl', 'til'], links: ['pickups', 'links'], collection: ['records', 'collection'] };
 
         // stl → tab contents
         const STL_CORE = `
@@ -412,7 +412,7 @@
                 ${tabsHtml('records')}
                 ${TABS.records.current === 'til'
                     ? '<div class="til-box" data-scope="all"><p class="note">loading …</p></div>'
-                    : '<section class="block"><p class="note">coming soon.</p></section>'}`,
+                    : COLLECTION_HTML()}`,
 
             pickups: () => `
                 <h1 class="handle">pickups</h1>
@@ -549,6 +549,7 @@
             startRotators();
             if (currentView === 'stl' && TABS.stl.current === 'knowledge') loadKnowledge();
             if (document.querySelector('.til-box')) loadTil();      // stl → til (technical) and records → til (all)
+            if (document.getElementById('col-grid')) loadCollection();   // records → collection
         }
 
         /* ---------- knowledge library (Notion → knowledge/*.md → here) ---------- */
@@ -859,6 +860,219 @@
             if (til.open === file) renderTil();
         }
 
+        /* ---------- records → collection ----------
+           my own photos, videos and thoughts. one file per item: collection/<number>_<name>.md
+             ---
+             link: https://youtu.be/…      (youtube / drive / instagram link, or images/x.jpg — leave out for a plain note)
+             date: 2019-06-17
+             ---
+             # header                       ← caption
+             note …                         ← text under the media in the pop-up
+           list source: collection/index.json (built on deploy) → fallback: ask GitHub which files are in collection/ */
+        const col = { entries: null, filter: 'all', order: null, open: null };
+        const COL_ICON = {
+            drive: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4 21 19H3z"/></svg>',
+            youtube: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+            instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></svg>',
+            local: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/></svg>'
+        };
+        const SHUFFLE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>';
+        const COL_SOURCE = { drive: 'drive', youtube: 'youtube', instagram: 'instagram', local: 'photo' };
+
+        const COLLECTION_HTML = () => `
+                <div class="col-tools">
+                    <div class="col-filter">${['all', 'photos', 'videos', 'notes'].map(f =>
+                        `<button data-cfilter="${f}" class="${col.filter === f ? 'on' : ''}">${f}</button>`).join('<span>·</span>')}</div>
+                    <button id="col-shuffle" class="col-shuffle">${SHUFFLE_ICON}shuffle</button>
+                </div>
+                <div class="col-grid" id="col-grid"><p class="note">loading …</p></div>`;
+
+        // what a link points to → { source, kind: photo|video|note, id, thumb, embed, open, ratio }
+        function mediaOf(e) {
+            const link = (e.link || '').trim();
+            const cover = e.cover ? new URL('collection/' + e.cover, location.href).href : '';
+            let m;
+            if (!link) return { kind: 'note' };
+            if ((m = link.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/))) {
+                const short = /\/shorts\//.test(link);
+                return { source: 'youtube', kind: 'video', ratio: short ? '9 / 16' : '16 / 9',
+                    thumb: cover || `https://i.ytimg.com/vi/${m[1]}/hqdefault.jpg`,
+                    embed: `https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1&rel=0`,
+                    open: `https://www.youtube.com/watch?v=${m[1]}` };
+            }
+            if ((m = link.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:.*&)?id=)([\w-]{10,})/))) {
+                const video = /^video$/i.test(e.type || '');
+                return { source: 'drive', kind: video ? 'video' : 'photo', id: m[1], ratio: video ? '16 / 9' : '',
+                    thumb: cover || `https://drive.google.com/thumbnail?id=${m[1]}&sz=w800`,
+                    full: `https://drive.google.com/thumbnail?id=${m[1]}&sz=w2000`,
+                    embed: `https://drive.google.com/file/d/${m[1]}/preview`,
+                    open: `https://drive.google.com/file/d/${m[1]}/view` };
+            }
+            if ((m = link.match(/instagram\.com\/(?:[\w.]+\/)?(p|reel|tv)\/([\w-]+)/))) {
+                return { source: 'instagram', kind: m[1] === 'p' ? 'photo' : 'video', ratio: '4 / 5', thumb: cover,
+                    embed: `https://www.instagram.com/${m[1]}/${m[2]}/embed/`,
+                    open: `https://www.instagram.com/${m[1]}/${m[2]}/` };
+            }
+            if (!/^[a-z]+:/i.test(link) || /\.(jpe?g|png|gif|webp|avif)(\?|$)/i.test(link)) {     // own photo in collection/images/
+                const src = new URL(/^[a-z]+:/i.test(link) ? link : 'collection/' + link, location.href).href;
+                return { source: 'local', kind: 'photo', thumb: cover || src, full: src, open: src };
+            }
+            return { source: 'link', kind: 'note', open: link };                                // any other link: note + "open ↗"
+        }
+
+        const colUrl = file => 'collection/' + encodeURIComponent(file);
+        async function colFromIndex() {
+            const r = await fetch('collection/index.json', { cache: 'no-cache' });
+            if (!r.ok) throw new Error(r.status);
+            return (await r.json()).entries || [];
+        }
+        async function colFromGitHub() {
+            let names = null;
+            try { const c = JSON.parse(sessionStorage.getItem('col-files') || 'null'); if (c && Date.now() - c.at < 600000) names = c.names; } catch (e) { }
+            if (!names) {
+                const r = await fetch(`https://api.github.com/repos/${TIL_REPO}/contents/collection`);
+                if (r.status === 404) return [];
+                if (!r.ok) throw new Error(r.status);
+                names = (await r.json()).filter(f => f.type === 'file').map(f => f.name);
+                try { sessionStorage.setItem('col-files', JSON.stringify({ at: Date.now(), names })); } catch (e) { }
+            }
+            const files = names.filter(n => /\.md$/i.test(n) && !n.startsWith('_') && /^#?\d+/.test(n));
+            const entries = await Promise.all(files.map(async name => {
+                const r = await fetch(colUrl(name), { cache: 'no-cache' });
+                if (!r.ok) return null;
+                const { meta, header, body } = parseTil(await r.text());
+                const m = name.match(/^#?(\d+)[_\- ]?(.*)\.md$/i);
+                return { n: +m[1], title: header || m[2] || name, date: meta.date || '', link: meta.link || '', type: meta.type || '',
+                    cover: meta.cover || '', note: body.replace(/<!--[\s\S]*?-->/g, '').trim(), file: name };
+            }));
+            return entries.filter(Boolean).sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.n - a.n);
+        }
+
+        async function loadCollection() {
+            if (!col.entries) {
+                try { col.entries = await colFromIndex(); }
+                catch (e) {
+                    try { col.entries = await colFromGitHub(); }
+                    catch (e2) {
+                        const g = document.getElementById('col-grid');
+                        if (g) g.innerHTML = location.protocol === 'file:'
+                            ? '<p class="note">the collection opens on the live site (altnskuur.github.io).</p>'
+                            : '<p class="note">couldn\'t load the collection right now. try again in a bit.</p>';
+                        return;
+                    }
+                }
+                col.entries.forEach(e => { e.media = mediaOf(e); });
+            }
+            renderCollection();
+        }
+
+        function colVisible() {
+            const list = col.order || col.entries || [];
+            const want = { photos: 'photo', videos: 'video', notes: 'note' }[col.filter];
+            return want ? list.filter(e => e.media.kind === want) : list;
+        }
+
+        function colCard(e, i) {
+            const md = e.media;
+            if (md.kind === 'note' || (!md.thumb && md.source !== 'instagram')) {
+                return `<button class="col-card col-note" data-col="${i}">
+                    <b>${esc(e.title)}</b>${e.note ? `<span>${esc(e.note)}</span>` : ''}
+                    <em>${esc(prettyDate(e.date))}</em></button>`;
+            }
+            const media = md.thumb
+                ? `<img src="${esc(md.thumb)}" alt="${esc(e.title)}" loading="lazy" referrerpolicy="no-referrer"${md.ratio ? ` style="aspect-ratio:${md.ratio}"` : ''}>`
+                : `<div class="col-blank" style="aspect-ratio:${md.ratio}">${COL_ICON.instagram}</div>`;
+            return `<button class="col-card" data-col="${i}" aria-label="${esc(e.title)}">
+                ${media}
+                <span class="col-src" title="${COL_SOURCE[md.source] || ''}">${COL_ICON[md.source] || ''}</span>
+                ${md.kind === 'video' ? '<span class="col-play">' + COL_ICON.youtube + '</span>' : ''}
+                <span class="col-cap">${esc(e.title)}</span></button>`;
+        }
+
+        function renderCollection() {
+            const g = document.getElementById('col-grid');
+            if (!g || !col.entries) return;
+            document.querySelectorAll('[data-cfilter]').forEach(b => b.classList.toggle('on', b.dataset.cfilter === col.filter));
+            const list = colVisible();
+            g.innerHTML = list.length ? list.map(colCard).join('') : '<p class="note">nothing here yet.</p>';
+            // a drive photo that isn't shared publicly has no thumbnail: show it as a text card instead
+            g.querySelectorAll('img').forEach(img => img.addEventListener('error', () => {
+                const b = img.closest('.col-card'); const e = list[+b.dataset.col];
+                b.outerHTML = colCard(Object.assign({}, e, { media: { kind: 'note' } }), +b.dataset.col);
+            }, { once: true }));
+        }
+
+        function shuffleCollection() {
+            if (!col.entries) return;
+            const a = col.entries.slice();
+            for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+            col.order = a;
+            renderCollection();
+        }
+
+        // full-page pop-up (only the collection uses it; everything else opens in the right panel)
+        let $colPop = null;
+        function openCollection(i) {
+            const list = colVisible();
+            if (!list[i]) return;
+            col.open = i;
+            const e = list[i], md = e.media;
+            let media = '';
+            if (md.kind === 'video' || md.source === 'instagram') {
+                media = `<div class="pop-frame${md.source === 'instagram' ? ' ig' : ''}" style="aspect-ratio:${md.ratio || '16 / 9'}">
+                    <iframe src="${esc(md.embed)}" title="${esc(e.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+            } else if (md.kind === 'photo') {
+                media = `<div class="pop-photo"><img src="${esc(md.full)}" alt="${esc(e.title)}" referrerpolicy="no-referrer"></div>`;
+            }
+            const src = md.source && md.source !== 'link' ? `${COL_SOURCE[md.source]}${md.kind !== 'note' ? ' · ' + md.kind : ''} · ` : '';
+            const openLabel = { drive: 'open in drive', youtube: 'open on youtube', instagram: 'open on instagram', local: 'open full size', link: 'open link' }[md.source];
+            if (!$colPop) {
+                $colPop = document.createElement('div');
+                $colPop.className = 'col-pop';
+                $colPop.setAttribute('role', 'dialog');
+                $colPop.setAttribute('aria-modal', 'true');
+                document.body.appendChild($colPop);
+                $colPop.addEventListener('click', ev => {
+                    if (ev.target.closest('[data-step]')) return stepCollection(+ev.target.closest('[data-step]').dataset.step);
+                    if (ev.target === $colPop || ev.target.closest('.pop-close')) closeCollection();
+                });
+            }
+            $colPop.innerHTML = `
+                <button class="pop-close" aria-label="close">${CLOSE_ICON}</button>
+                ${list.length > 1 ? `<button class="pop-nav prev" data-step="-1" aria-label="previous">‹</button><button class="pop-nav next" data-step="1" aria-label="next">›</button>` : ''}
+                <article class="pop-card${md.kind === 'note' ? ' is-note' : ''}">
+                    ${media}
+                    <div class="pop-body">
+                        <h2>${esc(e.title)}</h2>
+                        ${e.note ? e.note.split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('') : ''}
+                        <div class="pop-meta"><span>${esc(src + prettyDate(e.date))}</span>
+                        ${md.open ? `<a href="${esc(md.open)}" target="_blank" rel="noopener noreferrer">${openLabel} ↗</a>` : ''}</div>
+                    </div>
+                </article>`;
+            const img = $colPop.querySelector('.pop-photo img');           // drive picture blocked? fall back to drive's own viewer
+            if (img && md.source === 'drive') img.addEventListener('error', () => {
+                img.parentNode.outerHTML = `<div class="pop-frame" style="aspect-ratio:4 / 3"><iframe src="${esc(md.embed)}" title="${esc(e.title)}" allowfullscreen></iframe></div>`;
+            }, { once: true });
+            document.body.classList.add('pop-open');
+            $colPop.classList.add('show');
+            $colPop.querySelector('.pop-close').focus({ preventScroll: true });
+        }
+        function stepCollection(d) {
+            const n = colVisible().length;
+            if (col.open === null || n < 2) return;
+            openCollection((col.open + d + n) % n);
+        }
+        function closeCollection() {
+            if (!$colPop) return;
+            const last = col.open;
+            col.open = null;
+            $colPop.classList.remove('show');
+            $colPop.innerHTML = '';                                            // stops a playing video
+            document.body.classList.remove('pop-open');
+            const card = document.querySelector(`[data-col="${last}"]`);
+            if (card) card.focus({ preventScroll: true });
+        }
+
         let currentView = 'hello';
         function route() {
             let id = (location.hash || '#hello').slice(1);
@@ -868,6 +1082,7 @@
             renderNav(view);
             // on phones the nav is one scrolling row: keep the active item visible
             if (window.innerWidth <= 720) { const act = $nav.querySelector('.active'); if (act) $nav.scrollLeft = act.offsetLeft - 16; }
+            if (col.open !== null) closeCollection();
             $view.innerHTML = VIEWS[view]();
             afterRender();
             closePanel();
@@ -884,6 +1099,11 @@
                 closePanel();
                 return;
             }
+            const cf = e.target.closest('[data-cfilter]');
+            if (cf) { col.filter = cf.dataset.cfilter; renderCollection(); return; }
+            if (e.target.closest('#col-shuffle')) { shuffleCollection(); return; }
+            const card = e.target.closest('[data-col]');
+            if (card) { openCollection(+card.dataset.col); return; }
             const day = e.target.closest('[data-til]');
             if (day) {                                          // today i learned: open / close a note under its header
                 til.open = til.open === day.dataset.til ? null : day.dataset.til;
@@ -907,7 +1127,15 @@
             if (b) openPanel(b.dataset.open);
         });
         $backdrop.addEventListener('click', closePanel);
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+        document.addEventListener('keydown', e => {
+            if (col.open !== null) {                             // collection pop-up has the keys while it is open
+                if (e.key === 'Escape') closeCollection();
+                else if (e.key === 'ArrowLeft') stepCollection(-1);
+                else if (e.key === 'ArrowRight') stepCollection(1);
+                return;
+            }
+            if (e.key === 'Escape') closePanel();
+        });
         window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
 
         // theme toggle: moon in light mode, sun in dark mode
