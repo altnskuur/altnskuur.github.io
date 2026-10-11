@@ -4,3 +4,6 @@ collection/index.json
 
 # local helper files from Claude
 Claude outputs/
+
+# python cache
+__pycache__/
