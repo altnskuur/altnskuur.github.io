@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "38a945c9dc4380ccb98aff586f2e12bb",
+      "slug": "git-branch-commands-38a945c9",
+      "title": "Git Branch Commands",
+      "parent": null,
+      "path": [],
+      "domain": "DevOps/Tool",
+      "confidence": "Novice",
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T19:01:00.000Z",
+      "file": "knowledge/git-branch-commands-38a945c9.md"
+    },
+    {
       "id": "3d5945c9dc4380ca9db5eb2f14e029dd",
       "slug": "c-flash-cards-3d5945c9",
       "title": "C++ Flash Cards",
