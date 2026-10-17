@@ -571,6 +571,13 @@
             return isNaN(d) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
         }
         const editedOf = it => it.edited || it.updated || '';
+        // "2026-10-17T18:40:00Z" → "oct 17, 2026 · 21:40" (visitor's own time zone); a plain date → just the date
+        function prettyDateTime(iso) {
+            if (!iso || iso.length <= 10) return prettyDate(iso);
+            const d = new Date(iso);
+            if (isNaN(d)) return iso;
+            return prettyDate(iso) + ' · ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
 
         async function loadKnowledge() {
             const box = document.getElementById('kn-list');
@@ -793,7 +800,7 @@
                 if (!r.ok) return null;
                 const { meta, header } = parseTil(await r.text());
                 const m = name.match(/^#?(\d+)[_\- ]?(.*)\.md$/i);
-                return { n: +m[1], title: header || m[2] || name, technical: isTrue(meta.technical), personal: meta.personal ? isTrue(meta.personal) : true, file: name };
+                return { n: +m[1], title: header || m[2] || name, technical: isTrue(meta.technical), personal: meta.personal ? isTrue(meta.personal) : true, edited: meta.edited || meta.date || '', file: name };
             }));
             return entries.filter(Boolean).sort((a, b) => b.n - a.n);
         }
@@ -824,8 +831,8 @@
                 box.innerHTML = '<ol class="til-list">' + list.map(e => {
                     const open = til.open === e.file;
                     return `<li>
-                        <button class="til-row${open ? ' open' : ''}" data-til="${esc(e.file)}" aria-expanded="${open}">#${e.n}_${esc(e.title)}</button>
-                        ${open ? `<div class="til-text md-body">${til.html[e.file] || '<p class="note">loading …</p>'}</div>` : ''}
+                        <button class="til-row${open ? ' open' : ''}" data-til="${esc(e.file)}" aria-expanded="${open}">#${e.n} ${esc(e.title)}</button>
+                        ${open ? `<div class="til-text md-body">${e.edited ? `<p class="til-edited">last edited ${esc(prettyDateTime(e.edited))}</p>` : ''}${til.html[e.file] || '<p class="note">loading …</p>'}</div>` : ''}
                     </li>`;
                 }).join('') + '</ol>';
             });

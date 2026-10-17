@@ -406,6 +406,7 @@ def sync_til(n):
                 f"technical: {'true' if technical else 'false'}",
                 f"personal: {'true' if personal else 'false'}",
                 f"date: {(page.get('created_time') or '')[:10]}",
+                f"edited: {page.get('last_edited_time') or ''}",
                 f"notion: {pid}",
                 "---",
                 f"# {title}", "", ""]
