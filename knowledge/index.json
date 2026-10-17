@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "3d5945c9dc4380ca9db5eb2f14e029dd",
+      "slug": "c-flash-cards-3d5945c9",
+      "title": "C++ Flash Cards",
+      "parent": null,
+      "path": [],
+      "domain": "Software",
+      "confidence": null,
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T18:59:00.000Z",
+      "file": "knowledge/c-flash-cards-3d5945c9.md"
+    },
+    {
       "id": "3ce945c9dc438042904dfefc64fc2981",
       "slug": "cpu-burn-operation-3ce945c9",
       "title": "CPU Burn Operation",
@@ -12,6 +25,98 @@
       "updated": "2026-10-17",
       "edited": "2026-10-17T18:56:00.000Z",
       "file": "knowledge/cpu-burn-operation-3ce945c9.md"
+    },
+    {
+      "id": "3f1945c9dc43802989fbec241af5a0d4",
+      "slug": "standard-template-library-3f1945c9",
+      "title": "Standard Template Library",
+      "parent": "3d5945c9dc4380ca9db5eb2f14e029dd",
+      "path": [
+        "C++ Flash Cards"
+      ],
+      "domain": "Software",
+      "confidence": "Novice",
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T19:00:00.000Z",
+      "file": "knowledge/standard-template-library-3f1945c9.md"
+    },
+    {
+      "id": "3d5945c9dc4380679d5fd58549dea9e8",
+      "slug": "static-class-members-and-functions-3d5945c9",
+      "title": "Static Class Members and Functions",
+      "parent": "3d5945c9dc4380ca9db5eb2f14e029dd",
+      "path": [
+        "C++ Flash Cards"
+      ],
+      "domain": "Software",
+      "confidence": "Novice",
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T19:00:00.000Z",
+      "file": "knowledge/static-class-members-and-functions-3d5945c9.md"
+    },
+    {
+      "id": "3d7945c9dc4380c1ba6ff1c17b2de124",
+      "slug": "why-must-a-copy-constructor-take-a-reference-3d7945c9",
+      "title": "Why Must a Copy Constructor Take a Reference (&)?",
+      "parent": "3d5945c9dc4380ca9db5eb2f14e029dd",
+      "path": [
+        "C++ Flash Cards"
+      ],
+      "domain": "Software",
+      "confidence": "Intermediate",
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T19:00:00.000Z",
+      "file": "knowledge/why-must-a-copy-constructor-take-a-reference-3d7945c9.md"
+    },
+    {
+      "id": "3d8945c9dc43804bac10de16930671e7",
+      "slug": "explicit-and-mutable-3d8945c9",
+      "title": "“explicit” and “mutable”",
+      "parent": "3d5945c9dc4380ca9db5eb2f14e029dd",
+      "path": [
+        "C++ Flash Cards"
+      ],
+      "domain": "Software",
+      "confidence": "Novice",
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T19:00:00.000Z",
+      "file": "knowledge/explicit-and-mutable-3d8945c9.md"
+    },
+    {
+      "id": "3f1945c9dc4380438af9cce936832ce6",
+      "slug": "std-span-3f1945c9",
+      "title": "std::span",
+      "parent": "3f1945c9dc43802989fbec241af5a0d4",
+      "path": [
+        "C++ Flash Cards",
+        "Standard Template Library"
+      ],
+      "domain": "Software",
+      "confidence": "Novice",
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T19:00:00.000Z",
+      "file": "knowledge/std-span-3f1945c9.md"
+    },
+    {
+      "id": "3f3945c9dc4380459815e399fb2ce401",
+      "slug": "std-vector-3f3945c9",
+      "title": "std::vector",
+      "parent": "3f1945c9dc43802989fbec241af5a0d4",
+      "path": [
+        "C++ Flash Cards",
+        "Standard Template Library"
+      ],
+      "domain": "Software",
+      "confidence": "Novice",
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T19:00:00.000Z",
+      "file": "knowledge/std-vector-3f3945c9.md"
     }
   ]
 }
