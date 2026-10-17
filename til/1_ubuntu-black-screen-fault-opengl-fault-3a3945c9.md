@@ -2,6 +2,7 @@
 technical: true
 personal: false
 date: 2026-07-20
+edited: 2026-10-17T19:22:00.000Z
 notion: 3a3945c9dc4380a49b5dd303ee879ae1
 ---
 # Ubuntu Black Screen Fault - OpenGL Fault

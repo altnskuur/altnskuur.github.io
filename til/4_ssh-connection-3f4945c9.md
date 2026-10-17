@@ -2,6 +2,7 @@
 technical: true
 personal: false
 date: 2026-10-09
+edited: 2026-10-17T19:21:00.000Z
 notion: 3f4945c9dc4380d79ad7c780c1b79c03
 ---
 # SSH Connection
