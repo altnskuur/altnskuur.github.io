@@ -1,3 +1,17 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": "3ce945c9dc438042904dfefc64fc2981",
+      "slug": "cpu-burn-operation-3ce945c9",
+      "title": "CPU Burn Operation",
+      "parent": null,
+      "path": [],
+      "domain": "Software",
+      "confidence": "Novice",
+      "summary": null,
+      "updated": "2026-10-17",
+      "edited": "2026-10-17T18:56:00.000Z",
+      "file": "knowledge/cpu-burn-operation-3ce945c9.md"
+    }
+  ]
 }
