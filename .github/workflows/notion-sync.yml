@@ -1,10 +1,11 @@
-# Copies "Published" pages from the Notion Knowledge DB into knowledge/,
-# commits them to main, then redeploys the site.
-name: Sync Notion knowledge
+# Copies "Published" pages from the Notion Knowledge DB into knowledge/ and
+# "Sended" pages from the Notion Feed DB into til/, commits them to main,
+# then redeploys the site (only when something changed).
+name: Sync Notion
 
 on:
   schedule:
-    - cron: "17 3 * * *"     # every day 03:17 UTC (06:17 Istanbul)
+    - cron: "*/15 * * * *"   # every 15 minutes (GitHub may start it a few minutes late)
   workflow_dispatch:          # "Run workflow" button in the Actions tab
 
 permissions:
@@ -40,12 +41,12 @@ jobs:
         run: |
           git config user.name  "notion-sync[bot]"
           git config user.email "notion-sync@users.noreply.github.com"
-          git add knowledge
+          git add knowledge til
           if git diff --cached --quiet; then
             echo "Nothing changed in Notion."
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "knowledge: sync from Notion"
+            git commit -m "sync from Notion"
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi

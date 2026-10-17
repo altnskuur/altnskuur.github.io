@@ -14,7 +14,9 @@ Inside a file:
   # structure of stg             ← first line after the block = the header on the website
   what i learned …
 
-Every note shows under records → til; notes with "technical: true" also show under stl → til.
+"technical: true" → shown under stl → til.  "personal: false" → NOT shown under records → til
+(notes without a "personal" line, like hand-written ones, show under records as before).
+Notes synced from Notion (scripts/notion_sync.py) set both lines from their Topic.
 The number in the file name is the number on the site (newest = highest, listed first).
 Files starting with "_" (like _template.md) are skipped.
 
@@ -65,6 +67,7 @@ def main():
             "n": int(m.group(1)),
             "title": header or m.group(2) or path.stem,
             "technical": meta.get("technical", "").lower() in TRUE,
+            "personal": meta.get("personal", "true").lower() in TRUE,
             "file": path.name,
         })
     entries.sort(key=lambda e: e["n"], reverse=True)          # highest number first
