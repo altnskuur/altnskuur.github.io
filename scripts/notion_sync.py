@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """
-Sync the Notion "Knowledge DB" into this repo.
+Sync two Notion databases into this repo.
+
+1) Knowledge DB → knowledge/   (pages with Status = "Published")
+2) Feed DB      → til/         (pages with Status = "Sended"; "today i learned" notes)
+     Topic "Engineering"                          → stl → today i learned   (technical: true)
+     Topic "Log" / "Cultural" / "Life/Ops" / "Social" → records → today i learned (personal: true)
+     a page with both kinds of topic shows in both places; no matching topic → not synced.
+     notes are numbered by creation time (oldest = 1). Images → til/assets/<page-id>/.
+     Only files this script wrote (front matter "notion: <id>") are ever replaced or removed.
+
+Knowledge DB details:
 
 Only pages whose Status is "Published" are copied. For each one we write
   knowledge/<slug>.md                 the page body as markdown
@@ -12,6 +22,7 @@ Pages that are no longer "Published" are removed on the next run.
 Needs two environment variables (set them as GitHub Actions secrets):
   NOTION_TOKEN        the secret of a Notion integration that has access to Knowledge DB
   NOTION_KNOWLEDGE_DB the database id (default: altnskuur's Knowledge DB)
+  NOTION_TIL_DB       the database id (default: altnskuur's Feed DB)
 
 Run locally:  NOTION_TOKEN=secret_xxx python3 scripts/notion_sync.py
 """
@@ -31,9 +42,16 @@ API = "https://api.notion.com/v1"
 DEFAULT_DB = "343945c9dc43805c9ea8fc84b5861fd6"
 PUBLISH_STATUS = "Published"
 
+DEFAULT_TIL_DB = "34d945c9dc438057a118c1b88484e619"
+TIL_STATUS = "Sended"
+TIL_TECHNICAL = {"Engineering"}
+TIL_PERSONAL = {"Log", "Cultural", "Life/Ops", "Social"}
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "knowledge"
 ASSETS = OUT / "assets"
+TIL_OUT = ROOT / "til"
+TIL_ASSETS = TIL_OUT / "assets"
 
 
 # --------------------------------------------------------------------------- api
@@ -60,8 +78,9 @@ class Notion:
             return r.json()
         raise RuntimeError(f"Notion API kept failing on {path}")
 
-    def query_published(self, db_id):
-        body = {"filter": {"property": "Status", "status": {"equals": PUBLISH_STATUS}}, "page_size": 100}
+    def query_published(self, db_id, status=PUBLISH_STATUS):
+        kind = self._req("GET", f"/databases/{db_id}")["properties"]["Status"]["type"]   # "status" or "select"
+        body = {"filter": {"property": "Status", kind: {"equals": status}}, "page_size": 100}
         pages, cursor = [], None
         while True:
             if cursor:
@@ -131,10 +150,11 @@ def plain(rt_list):
 # ---------------------------------------------------------------- blocks → md
 
 class Converter:
-    def __init__(self, notion, page_id):
+    def __init__(self, notion, page_id, assets=ASSETS, link="knowledge/assets"):
         self.n = notion
         self.page_id = page_id
-        self.img_dir = ASSETS / page_id
+        self.img_dir = assets / page_id
+        self.link = link
         self.img_count = 0
 
     def image(self, block):
@@ -152,7 +172,7 @@ class Converter:
         r = requests.get(url, timeout=60)
         r.raise_for_status()
         (self.img_dir / name).write_bytes(r.content)
-        return f"![{caption}](knowledge/assets/{self.page_id}/{name})"
+        return f"![{caption}]({self.link}/{self.page_id}/{name})"
 
     def table(self, block):
         rows = self.n.children(block["id"])
@@ -258,6 +278,8 @@ def prop(page, name):
         return (p[t] or {}).get("name")
     if t == "last_edited_time":
         return p["last_edited_time"]
+    if t == "multi_select":
+        return [o["name"] for o in p["multi_select"]]
     return None
 
 
@@ -295,15 +317,10 @@ def tidy(lines):
 
 # ------------------------------------------------------------------------- main
 
-def main():
-    token = os.environ.get("NOTION_TOKEN")
-    if not token:
-        sys.exit("NOTION_TOKEN is not set")
+def sync_knowledge(n):
     db = os.environ.get("NOTION_KNOWLEDGE_DB", DEFAULT_DB).replace("-", "")
-    n = Notion(token)
-
     pages = n.query_published(db)
-    print(f"{len(pages)} published page(s)")
+    print(f"knowledge: {len(pages)} published page(s)")
 
     OUT.mkdir(exist_ok=True)
     if ASSETS.exists():
@@ -346,6 +363,69 @@ def main():
     items.sort(key=lambda i: (i["domain"] or "~", [t.lower() for t in i["path"]], i["title"].lower()))
     index = {"items": items}                  # no timestamp, so unchanged content = no new commit
     (OUT / "index.json").write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def notion_id_of(path):
+    """The "notion:" value in a til file's front matter (None = written by hand)."""
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    if not lines or lines[0].strip() != "---":
+        return None
+    for line in lines[1:20]:
+        if line.strip() == "---":
+            return None
+        if line.lower().startswith("notion:"):
+            return line.split(":", 1)[1].strip()
+    return None
+
+
+def sync_til(n):
+    db = os.environ.get("NOTION_TIL_DB", DEFAULT_TIL_DB).replace("-", "")
+    pages = n.query_published(db, TIL_STATUS)
+    notes = []
+    for page in pages:
+        topics = set(prop(page, "Topic") or [])
+        technical, personal = bool(topics & TIL_TECHNICAL), bool(topics & TIL_PERSONAL)
+        if technical or personal:              # "Sended" but no website topic → stays private
+            notes.append((page, technical, personal))
+    notes.sort(key=lambda x: (x[0].get("created_time") or "", x[0]["id"]))   # oldest = #1
+    print(f"til: {len(notes)} sended note(s) with a website topic")
+
+    TIL_OUT.mkdir(exist_ok=True)
+    if TIL_ASSETS.exists():
+        shutil.rmtree(TIL_ASSETS)              # rebuilt from scratch each run
+    keep = set()
+    for number, (page, technical, personal) in enumerate(notes, 1):
+        pid = page["id"].replace("-", "")
+        title = prop(page, "Name") or "untitled"
+        name = f"{number}_{slugify(title, pid)}.md"
+        body = tidy(Converter(n, pid, TIL_ASSETS, "assets").blocks(page["id"]))
+        head = ["---",
+                f"technical: {'true' if technical else 'false'}",
+                f"personal: {'true' if personal else 'false'}",
+                f"date: {(page.get('created_time') or '')[:10]}",
+                f"notion: {pid}",
+                "---",
+                f"# {title}", "", ""]
+        (TIL_OUT / name).write_text("\n".join(head) + body, encoding="utf-8")
+        keep.add(name)
+        print(f"  ✓ #{number} {title}")
+
+    for f in TIL_OUT.glob("*.md"):             # only touch notes that came from Notion
+        if f.name not in keep and notion_id_of(f):
+            f.unlink()
+            print(f"  ✗ removed {f.name}")
+
+
+def main():
+    token = os.environ.get("NOTION_TOKEN")
+    if not token:
+        sys.exit("NOTION_TOKEN is not set")
+    n = Notion(token)
+    sync_knowledge(n)
+    sync_til(n)
 
 
 if __name__ == "__main__":

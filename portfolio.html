@@ -746,7 +746,8 @@
 
         /* ---------- today i learned ----------
            notes live in til/<number>_<name>.md (first line after the front matter = header).
-           every note shows under records → til; notes with "technical: true" also under stl → til.
+           "technical: true" → stl → til; records → til shows every note except "personal: false".
+           notes come from the Notion Feed DB (scripts/notion_sync.py, Status = Sended, Topic decides where).
            list source: til/index.json (built on deploy) → fallback: ask GitHub which files are in til/ */
         const TIL_REPO = 'altnskuur/altnskuur.github.io';
         const til = { entries: null, open: null, html: {} };
@@ -792,7 +793,7 @@
                 if (!r.ok) return null;
                 const { meta, header } = parseTil(await r.text());
                 const m = name.match(/^#?(\d+)[_\- ]?(.*)\.md$/i);
-                return { n: +m[1], title: header || m[2] || name, technical: isTrue(meta.technical), file: name };
+                return { n: +m[1], title: header || m[2] || name, technical: isTrue(meta.technical), personal: meta.personal ? isTrue(meta.personal) : true, file: name };
             }));
             return entries.filter(Boolean).sort((a, b) => b.n - a.n);
         }
@@ -818,7 +819,7 @@
         function renderTil() {
             if (!til.entries) return;
             document.querySelectorAll('.til-box').forEach(box => {
-                const list = box.dataset.scope === 'technical' ? til.entries.filter(e => e.technical) : til.entries;
+                const list = box.dataset.scope === 'technical' ? til.entries.filter(e => e.technical) : til.entries.filter(e => e.personal !== false);
                 if (!list.length) { box.innerHTML = '<p class="note">coming soon.</p>'; return; }
                 box.innerHTML = '<ol class="til-list">' + list.map(e => {
                     const open = til.open === e.file;
