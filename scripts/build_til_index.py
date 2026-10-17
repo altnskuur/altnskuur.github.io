@@ -68,6 +68,7 @@ def main():
             "title": header or m.group(2) or path.stem,
             "technical": meta.get("technical", "").lower() in TRUE,
             "personal": meta.get("personal", "true").lower() in TRUE,
+            "edited": meta.get("edited") or meta.get("date") or "",   # shown when the note is opened
             "file": path.name,
         })
     entries.sort(key=lambda e: e["n"], reverse=True)          # highest number first

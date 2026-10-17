@@ -272,6 +272,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
     animation: panel-in .2s ease-out;
 }
 .til-text img { display: block; margin: .6rem 0; }
+.til-text .til-edited { color: var(--muted); font-size: .8rem; margin: 0 0 .6rem; }
 
 /* records → collection: filter row, masonry grid, full-page pop-up */
 .col-tools { display: flex; justify-content: space-between; align-items: center; margin: -1rem 0 1.2rem; font-size: .85rem; color: var(--muted); }
