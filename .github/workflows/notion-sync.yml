@@ -1,5 +1,6 @@
 # Copies "Published" pages from the Notion Knowledge DB into knowledge/ and
-# "Sended" pages from the Notion Feed DB into til/, commits them to main,
+# "Sended" pages from the Notion Feed DB into til/ and the Collection DB into
+# collection/, commits them to main,
 # then redeploys the site (only when something changed).
 name: Sync Notion
 
@@ -41,7 +42,7 @@ jobs:
         run: |
           git config user.name  "notion-sync[bot]"
           git config user.email "notion-sync@users.noreply.github.com"
-          git add knowledge til
+          git add knowledge til collection
           if git diff --cached --quiet; then
             echo "Nothing changed in Notion."
             echo "changed=false" >> "$GITHUB_OUTPUT"

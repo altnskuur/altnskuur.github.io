@@ -129,7 +129,104 @@
                     'autobiography.md': "# autobiography\n\ncoming soon."
                 }
             };
-            let cwd = '~';   // '~' or a folder name from FS
+            // every page of the ui is a folder too. a file = text, or a function that fetches text.
+            // lazy(...) folders are filled from the site's own data the first time you open them.
+            const lazy = load => ({ __lazy: load });
+            Object.assign(FS, {
+                stl: {
+                    core: {},
+                    knowledge: lazy(loadKnowledgeDir),
+                    til: lazy(() => loadTilDir(e => e.technical))
+                },
+                records: {
+                    collection: lazy(loadCollectionDir),
+                    til: lazy(() => loadTilDir(e => e.personal !== false))
+                },
+                pickups: {
+                    'things-i-follow.md': '# things i follow\n\ncoming soon.',
+                    'links-i-liked.md': '# links i liked\n\ncoming soon.'
+                },
+                cv: {
+                    'cv.md': "# cv\n\n## now\nSoftware Engineer · Meva Avionics (Nov. 2025 – present)\n\n## before\nCandidate Embedded Software Engineer · STM Defence (Dec. 2023 – Jun. 2024)\nPart-Time Engineer · SPECSON Design (Jan. 2022 – May 2023)\n\n## internship\nEmbedded Software Engineer Intern · STM Defence (May 2023 – Aug. 2023)\nElectrical and Electronics Engineer Intern · NERO Industry / NAVIO Technology (May 2021 – Sep. 2021)\n\n## education\nB.Sc. Electrical and Electronics Engineering · TOBB ETÜ (2018 – 2025)\n\n## code\nEmbedded C, C++, Python, MATLAB, Verilog\n\n## languages\nTurkish (native), English (professional), German (basic)\n\n## based in\nAnkara, Türkiye\n\n(the detailed cv: type 'open' here)"
+                },
+                'say-hello': {
+                    'say-hello.md': "# say 'hello altnskuur!'\n\na guestbook is coming. until then, the fastest way is email:\nm.altinisiku@gmail.com\n\n(type 'email' to open your mail app)"
+                }
+            });
+            // what 'open' shows in the ui for each folder
+            const UI_OF = {
+                '': 'portfolio.html', 'hello-world': 'portfolio.html',
+                stl: 'portfolio.html#stl', 'stl/core': 'portfolio.html#core', 'stl/knowledge': 'portfolio.html#knowledge', 'stl/til': 'portfolio.html#til',
+                records: 'portfolio.html#records', 'records/collection': 'portfolio.html#collection', 'records/til': 'portfolio.html#records',
+                pickups: 'portfolio.html#pickups', cv: 'portfolio.html#cv', 'say-hello': 'portfolio.html#say-hello'
+            };
+            let cwd = '~';   // '~' or a folder path from FS, like 'stl/knowledge'
+            const UI_FIRST = ['stl', 'records', 'pickups'];   // folders that look better in the ui
+
+            // ---------- folders filled from the site's data ----------
+            async function getJson(url) {
+                const r = await fetch(url, { cache: 'no-cache' });
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.json();
+            }
+            async function getText(url) {
+                const r = await fetch(url, { cache: 'no-cache' });
+                if (!r.ok) throw new Error('http ' + r.status);
+                return r.text();
+            }
+            // "Belgrad'da bir gün" → "belgrad-da-bir-gun"
+            function slug(s) {
+                return String(s).replace(/ı/g, 'i').replace(/İ/g, 'I').normalize('NFKD').replace(/[̀-ͯ]/g, '')
+                    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'note';
+            }
+            function uniqueName(dir, name) {
+                let n = name, i = 2;
+                while (dir[n] !== undefined) n = name.replace(/\.md$/, '') + '-' + (i++) + '.md';
+                return n;
+            }
+            function stripFrontMatter(text) {
+                const m = text.replace(/\r/g, '').match(/^---\n[\s\S]*?\n---\n?/);
+                return m ? text.replace(/\r/g, '').slice(m[0].length) : text;
+            }
+            function prettyWhen(iso) {
+                if (!iso) return '';
+                const d = new Date(iso.length === 10 ? iso + 'T12:00:00Z' : iso);
+                if (isNaN(d)) return iso;
+                const day = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+                return iso.length > 10 ? day + ' · ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : day;
+            }
+            async function loadKnowledgeDir() {
+                const dir = {};
+                ((await getJson('knowledge/index.json')).items || []).forEach(it => {
+                    dir[uniqueName(dir, slug(it.title) + '.md')] = async () => {
+                        const body = await getText(it.file);
+                        const crumbs = (it.path || []).concat(it.title).join(' › ');
+                        return '# ' + it.title + '\n' + [crumbs, it.domain, 'last edited ' + prettyWhen(it.edited || it.updated)].filter(Boolean).join(' · ') +
+                            (it.summary ? '\n\n' + it.summary : '') + '\n\n' + body.trim();
+                    };
+                });
+                return dir;
+            }
+            async function loadTilDir(keep) {
+                const dir = {};
+                ((await getJson('til/index.json')).entries || []).filter(keep).forEach(e => {
+                    dir[uniqueName(dir, e.n + '_' + slug(e.title) + '.md')] = async () => {
+                        let body = stripFrontMatter(await getText('til/' + encodeURIComponent(e.file))).trim();
+                        body = body.replace(/^#[^\n]*\n?/, '').trim();          // the header is printed below anyway
+                        return '# #' + e.n + ' ' + e.title + (e.edited ? '\nlast edited ' + prettyWhen(e.edited) : '') + '\n\n' + body;
+                    };
+                });
+                return dir;
+            }
+            async function loadCollectionDir() {
+                const dir = {};
+                ((await getJson('collection/index.json')).entries || []).forEach(e => {
+                    const link = /^https?:/.test(e.link || '') ? e.link : (e.link ? new URL('collection/' + e.link, location.href).href : '');
+                    dir[uniqueName(dir, e.n + '_' + slug(e.title) + '.md')] =
+                        '# ' + e.title + (e.date ? '\n' + prettyWhen(e.date) : '') + (e.note ? '\n\n' + e.note : '') + (link ? '\n\n' + link : '');
+                });
+                return dir;
+            }
 
             const history = [];
             let histIdx = 0;
@@ -163,16 +260,56 @@
             // print a .md file: headings bright, everything else as-is
             function printFile(text) {
                 blank();
-                text.split('\n').forEach(l => print(/^#/.test(l) ? '<span class="bright">' + esc(l) + '</span>' : esc(l)));
+                const linkify = h => h.replace(/https?:\/\/[^\s<]+/g, u => '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>');
+                text.split('\n').forEach(l => print(/^#/.test(l) ? '<span class="bright">' + esc(l) + '</span>' : linkify(esc(l))));
                 blank();
             }
-            // resolve "brief.md", "hello-world/brief.md", "./brief.md", "~/hello-world/brief.md"
-            function findFile(arg) {
-                const parts = arg.replace(/^~\//, '').replace(/^\.\//, '').split('/').filter(Boolean);
-                if (parts.length === 1 && cwd !== '~') return FS[cwd][parts[0]] !== undefined ? FS[cwd][parts[0]] : null;
-                if (parts.length === 2 && FS[parts[0]]) return FS[parts[0]][parts[1]] !== undefined ? FS[parts[0]][parts[1]] : null;
-                return null;
+            // "knowledge", "../records/til", "~/stl", "/cv" → ['stl', 'knowledge'] (relative to home; can't go above it)
+            function resolvePath(arg) {
+                const parts = /^[~\/]/.test(arg) || cwd === '~' ? [] : cwd.split('/');
+                arg.replace(/^~\/?/, '').split('/').forEach(p => {
+                    if (!p || p === '.') return;
+                    if (p === '..') parts.pop();
+                    else parts.push(p.toLowerCase());
+                });
+                return parts;
             }
+            // walk the tree, filling lazy folders on the way → { dir } | { file } | null
+            async function lookup(parts) {
+                let node = FS;
+                for (let i = 0; i < parts.length; i++) {
+                    if (!node || typeof node !== 'object') return null;
+                    let next = Object.prototype.hasOwnProperty.call(node, parts[i]) ? node[parts[i]] : undefined;
+                    if (next === undefined) return null;
+                    if (next && next.__lazy) next = node[parts[i]] = await next.__lazy();
+                    if (typeof next !== 'object') return i === parts.length - 1 ? { file: next } : null;
+                    node = next;
+                }
+                return { dir: node };
+            }
+            // already-loaded entries of a folder, for tab completion (never fetches)
+            function peek(parts) {
+                let node = FS;
+                for (const p of parts) {
+                    node = node && typeof node === 'object' && !node.__lazy ? node[p] : undefined;
+                    if (!node || typeof node !== 'object' || node.__lazy) return null;
+                }
+                return node;
+            }
+            function entryNames(dir) {
+                return Object.keys(dir).map(k => typeof dir[k] === 'object' ? k + '/' : k);
+            }
+            // a lazy folder can take a moment: show a line while it loads
+            async function withLoading(label, work) {
+                const line = document.createElement('div');
+                line.className = 'line muted';
+                line.textContent = label;
+                const t = setTimeout(() => out.appendChild(line), 150);
+                try { return await work(); }
+                finally { clearTimeout(t); line.remove(); input.scrollIntoView({ block: 'nearest' }); }
+            }
+            const LOAD_ERR = "couldn't load that right now. (it works on the live site or a local server, not when the file is opened directly.)";
+
             // ---------- history.md: built live from the github repo ----------
             // versions = git tags (v0.0.0, v1.0.0 …), entries = commits on the default branch
             const REPO = 'altnskuur/altnskuur.github.io';
@@ -181,8 +318,7 @@
             let historyLoading = false;
 
             function isHistory(arg) {
-                const a = arg.replace(/^~\//, '').replace(/^\.\//, '');
-                return a === 'history.md' ? cwd === '~' : (a === '../history.md' && cwd !== '~');
+                return resolvePath(arg).join('/') === 'history.md';
             }
             function shortDate(iso) { return (iso || '').slice(0, 10); }
 
@@ -277,7 +413,7 @@
             const commands = {
                 help() {
                     blank();
-                    print('cd and ls commands are working!');
+                    print('every page is a folder: cd, ls, cat and open (opens the folder in the ui) work everywhere.');
                     blank();
                     print('what do you wanna learn about me:');
                     blank();
@@ -314,15 +450,27 @@
                     print('<span class="muted">more in the ui →</span> ' + cmdLink(UI_CMD));
                     blank();
                 },
-                ls() {
-                    if (cwd !== '~') return print(Object.keys(FS[cwd]).map(cmdLink).join('    '));
-                    print(Object.keys(FS).map(d => '<span class="host">' + esc(d) + '/</span>').concat(PAGES.map(cmdLink), [cmdLink('history.md')]).join('    '));
+                async ls(args) {
+                    const arg = args[0] || '.';
+                    let hit;
+                    try { hit = await withLoading('reading ...', () => lookup(resolvePath(arg))); }
+                    catch (e) { return print('ls: ' + LOAD_ERR, 'err'); }
+                    if (!hit) return print('ls: cannot access ' + esc(arg) + ': no such file or directory', 'err');
+                    if (hit.file !== undefined) return print(cmdLink(resolvePath(arg).pop()));
+                    const names = entryNames(hit.dir).concat(resolvePath(arg).length ? [] : ['history.md']);
+                    if (!names.length) return print('(empty for now. coming soon.)', 'muted');
+                    print(names.map(n => '<span style="white-space:nowrap">' + (n.endsWith('/') ? '<span class="host">' + esc(n) + '</span>' : cmdLink(n)) + '</span>').join('    '));
                 },
-                cat(args) {
+                async cat(args) {
                     if (!args[0]) return print("usage: cat <file>   (try: cd hello-world, then ls)", 'muted');
                     if (isHistory(args[0])) return catHistory();
-                    const text = findFile(args[0]);
-                    if (text === null) return print('cat: ' + esc(args[0]) + ': no such file or directory', 'err');
+                    let hit, text;
+                    try {
+                        hit = await withLoading('reading ...', () => lookup(resolvePath(args[0])));
+                        if (hit && hit.file !== undefined) text = typeof hit.file === 'function' ? await withLoading('reading ...', hit.file) : hit.file;
+                    } catch (e) { return print('cat: ' + LOAD_ERR, 'err'); }
+                    if (!hit) return print('cat: ' + esc(args[0]) + ': no such file or directory', 'err');
+                    if (hit.dir) return print('cat: ' + esc(args[0]) + ': is a directory. try cd ' + esc(args[0]), 'err');
                     printFile(text);
                 },
                 github() { openTab(LINKS.github, 'github'); },
@@ -333,6 +481,12 @@
                 },
                 whoami() { print('visitor. a curious one, apparently.'); },
                 pwd() { print('/home/visitor' + (cwd === '~' ? '' : '/' + cwd)); },
+                open(args) {
+                    const parts = args[0] ? resolvePath(args[0]) : (cwd === '~' ? [] : cwd.split('/'));
+                    const key = parts.join('/');
+                    if (UI_OF[key] !== undefined) return go(UI_OF[key], key ? key.replace('/', ' → ') : 'the ui');
+                    return null;     // not a folder: run() tries the old page names
+                },
                 date() { print(esc(new Date().toString())); },
                 history() {
                     history.forEach((h, i) => print('<span class="muted">' + String(i + 1).padStart(4, ' ') + '</span>  ' + esc(h)));
@@ -366,13 +520,30 @@
                 if (key === 'cd' || key === 'open') {
                     const arg = args[0] || '';
                     if (key === 'cd') {
-                        if (!arg || arg === '~' || arg === '..' || arg === '../' || arg === '/') {
+                        const parts = resolvePath(arg || '~');
+                        if (!parts.length) {
                             if (cwd === '~') return print('<span class="muted">you are already home.</span>');
                             misses = 0; return setCwd('~');
                         }
-                        const dir = arg.replace(/^~\//, '').replace(/^\.\.\//, '').replace(/^\.\//, '').replace(/\/$/, '').toLowerCase();
-                        if (FS[dir]) { misses = 0; return setCwd(dir); }
+                        return withLoading('opening ...', () => lookup(parts)).then(hit => {
+                            if (hit && hit.dir) {
+                                misses = 0;
+                                const before = cwd.split('/')[0];
+                                setCwd(parts.join('/'));
+                                // these pages are made for the ui: when you walk in, a hint first, then what's inside
+                                if (UI_FIRST.includes(parts[0]) && before !== parts[0]) {
+                                    print('for the best experience, switch to the ui.', 'muted');
+                                    return commands.ls([]);
+                                }
+                                return;
+                            }
+                            if (hit) return print('bash: cd: ' + esc(arg) + ': not a directory. try cat ' + esc(arg), 'err');
+                            if (['ui', 'portfolio', 'hello'].includes(arg.replace(/^[./\\]+/, '').toLowerCase())) { misses = 0; return commands.ui(); }
+                            misses++;
+                            print('bash: cd: ' + esc(arg) + ': no such file or directory' + (misses > 1 ? ". that's " + misses + ' misses in a row.' : ''), 'err');
+                        }, () => print('cd: ' + LOAD_ERR, 'err'));
                     }
+                    if (commands.open(args) !== null) { misses = 0; return; }
                     const target = arg.replace(/^[./\\]+/, '').replace(/\.html$/, '').toLowerCase();
                     if (PAGES.includes(target) || ['core', 'knowledge', 'til', 'links'].includes(target)) { misses = 0; return commands[target](); }
                     if (target === 'ui' || target === 'portfolio' || target === 'hello') { misses = 0; return commands.ui(); }
@@ -413,8 +584,14 @@
                     if (!v) return;
                     const words = v.split(' ');
                     let pool, last = words[words.length - 1].toLowerCase();
-                    if (words.length > 1) pool = cwd === '~' ? Object.keys(FS).map(d => d + '/').concat(PAGES, ['history.md']) : Object.keys(FS[cwd]).concat(['..', '../history.md']);
-                    else { pool = COMPLETIONS.concat(['cat', 'cd', 'pwd']); }
+                    if (words.length > 1) {
+                        const slash = last.lastIndexOf('/');
+                        const base = slash >= 0 ? last.slice(0, slash + 1) : '';
+                        const parts = resolvePath(base || '.');
+                        const dir = peek(parts);
+                        pool = dir ? entryNames(dir).concat(parts.length ? ['../'] : ['history.md']).map(n => base + n) : [];
+                    }
+                    else { pool = COMPLETIONS.concat(['cat', 'cd', 'pwd', 'open']); }
                     const hits = pool.filter(c => c.startsWith(last));
                     if (hits.length === 1) { words[words.length - 1] = hits[0]; input.value = words.join(' '); }
                     else if (hits.length > 1) { echoPrompt(input.value); print(hits.map(esc).join('    '), 'muted'); }
