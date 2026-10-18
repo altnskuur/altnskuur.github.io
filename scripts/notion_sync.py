@@ -4,6 +4,10 @@ Sync two Notion databases into this repo.
 
 1) Knowledge DB → knowledge/   (pages with Status = "Published")
 2) Feed DB      → til/         (pages with Status = "Sended"; "today i learned" notes)
+3) Collection DB → collection/ (pages with Status = "Sended"; records → collection)
+     Name = caption, Link = youtube / drive / instagram link (nothing is uploaded to the repo),
+     Date = when it happened, Type = "video" for drive videos, Cover = optional thumbnail link,
+     page text = the note in the pop-up. Hand-written collection files are left alone.
      Topic "Engineering"                          → stl → today i learned   (technical: true)
      Topic "Log" / "Cultural" / "Life/Ops" / "Social" → records → today i learned (personal: true)
      a page with both kinds of topic shows in both places; no matching topic → not synced.
@@ -23,6 +27,7 @@ Needs two environment variables (set them as GitHub Actions secrets):
   NOTION_TOKEN        the secret of a Notion integration that has access to Knowledge DB
   NOTION_KNOWLEDGE_DB the database id (default: altnskuur's Knowledge DB)
   NOTION_TIL_DB       the database id (default: altnskuur's Feed DB)
+  NOTION_COLLECTION_DB the database id (default: altnskuur's Collection DB)
 
 Run locally:  NOTION_TOKEN=secret_xxx python3 scripts/notion_sync.py
 """
@@ -44,6 +49,7 @@ PUBLISH_STATUS = "Published"
 
 DEFAULT_TIL_DB = "34d945c9dc438057a118c1b88484e619"
 TIL_STATUS = "Sended"
+DEFAULT_COLLECTION_DB = "c331c08658414f94b9e05503c0f3501a"
 TIL_TECHNICAL = {"Engineering"}
 TIL_PERSONAL = {"Log", "Cultural", "Life/Ops", "Social"}
 
@@ -52,6 +58,7 @@ OUT = ROOT / "knowledge"
 ASSETS = OUT / "assets"
 TIL_OUT = ROOT / "til"
 TIL_ASSETS = TIL_OUT / "assets"
+COL_OUT = ROOT / "collection"
 
 
 # --------------------------------------------------------------------------- api
@@ -153,7 +160,7 @@ class Converter:
     def __init__(self, notion, page_id, assets=ASSETS, link="knowledge/assets"):
         self.n = notion
         self.page_id = page_id
-        self.img_dir = assets / page_id
+        self.img_dir = assets / page_id if assets else None   # None = don't download images
         self.link = link
         self.img_count = 0
 
@@ -162,6 +169,8 @@ class Converter:
         caption = plain(img.get("caption"))
         if img["type"] == "external":
             return f"![{caption}]({img['external']['url']})"
+        if self.img_dir is None:
+            return ""
         url = img["file"]["url"]
         ext = os.path.splitext(url.split("?")[0])[1].lower() or ".png"
         if ext not in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"):
@@ -238,6 +247,12 @@ class Converter:
                 lines += [self.image(b), ""]
             elif t == "table":
                 lines += [self.table(b), ""]
+            elif t in ("video", "audio", "file", "pdf"):
+                if d.get("type") == "external":
+                    url = d["external"]["url"]
+                    lines += [f"[{plain(d.get('caption')) or url}]({url})", ""]
+                else:                                # uploaded to notion: links expire and files are big
+                    lines += [f"*({t} only in notion: paste a youtube / drive link instead)*", ""]
             elif t in ("bookmark", "embed", "link_preview"):
                 url = d.get("url", "")
                 if url:
@@ -278,6 +293,10 @@ def prop(page, name):
         return (p[t] or {}).get("name")
     if t == "last_edited_time":
         return p["last_edited_time"]
+    if t == "url":
+        return p["url"] or None
+    if t == "date":
+        return (p["date"] or {}).get("start")
     if t == "multi_select":
         return [o["name"] for o in p["multi_select"]]
     return None
@@ -420,6 +439,34 @@ def sync_til(n):
             print(f"  ✗ removed {f.name}")
 
 
+def sync_collection(n):
+    db = os.environ.get("NOTION_COLLECTION_DB", DEFAULT_COLLECTION_DB).replace("-", "")
+    pages = n.query_published(db, TIL_STATUS)
+    pages.sort(key=lambda p: (prop(p, "Date") or (p.get("created_time") or "")[:10], p.get("created_time") or ""))
+    print(f"collection: {len(pages)} sended item(s)")
+    COL_OUT.mkdir(exist_ok=True)
+    keep = set()
+    for number, page in enumerate(pages, 1):
+        pid = page["id"].replace("-", "")
+        title = prop(page, "Name") or "untitled"
+        name = f"{number}_{slugify(title, pid)}.md"
+        # notes are short text; images in the page body are not used (the link is the media)
+        body = tidy([l for l in Converter(n, pid, None, "").blocks(page["id"]) if not l.startswith("![")])
+        head = ["---"]
+        for key, value in (("link", prop(page, "Link")), ("date", prop(page, "Date") or (page.get("created_time") or "")[:10]),
+                           ("type", prop(page, "Type")), ("cover", prop(page, "Cover")), ("notion", pid)):
+            if value:
+                head.append(f"{key}: {value}")
+        head += ["---", f"# {title}", ""]
+        (COL_OUT / name).write_text("\n".join(head) + body, encoding="utf-8")
+        keep.add(name)
+        print(f"  ✓ {title}")
+    for f in COL_OUT.glob("*.md"):             # only touch items that came from Notion
+        if f.name not in keep and notion_id_of(f):
+            f.unlink()
+            print(f"  ✗ removed {f.name}")
+
+
 def main():
     token = os.environ.get("NOTION_TOKEN")
     if not token:
@@ -427,6 +474,7 @@ def main():
     n = Notion(token)
     sync_knowledge(n)
     sync_til(n)
+    sync_collection(n)
 
 
 if __name__ == "__main__":
