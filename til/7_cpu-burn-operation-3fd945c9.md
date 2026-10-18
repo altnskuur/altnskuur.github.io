@@ -1,3 +1,12 @@
+---
+technical: true
+personal: false
+date: 2026-10-18
+edited: 2026-10-18T15:48:00.000Z
+notion: 3fd945c9dc4380379a71f0b9ef9bb601
+---
+# CPU Burn Operation
+
 CPU hızını maksimize ederek CPU’nun maksimum sınırlarını zorlamak için yapılır.
 
 # Technical Details

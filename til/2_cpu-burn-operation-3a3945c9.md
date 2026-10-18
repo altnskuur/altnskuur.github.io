@@ -2,7 +2,7 @@
 technical: true
 personal: false
 date: 2026-07-20
-edited: 2026-10-17T19:20:00.000Z
+edited: 2026-10-18T12:07:00.000Z
 notion: 3a3945c9dc438001a49fcd66938b025b
 ---
 # CPU Burn Operation

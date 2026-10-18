@@ -1,19 +1,6 @@
 {
   "items": [
     {
-      "id": "38a945c9dc4380ccb98aff586f2e12bb",
-      "slug": "git-branch-commands-38a945c9",
-      "title": "Git Branch Commands",
-      "parent": null,
-      "path": [],
-      "domain": "DevOps/Tool",
-      "confidence": "Novice",
-      "summary": null,
-      "updated": "2026-10-17",
-      "edited": "2026-10-17T19:01:00.000Z",
-      "file": "knowledge/git-branch-commands-38a945c9.md"
-    },
-    {
       "id": "3d5945c9dc4380ca9db5eb2f14e029dd",
       "slug": "c-flash-cards-3d5945c9",
       "title": "C++ Flash Cards",
@@ -25,19 +12,6 @@
       "updated": "2026-10-17",
       "edited": "2026-10-17T18:59:00.000Z",
       "file": "knowledge/c-flash-cards-3d5945c9.md"
-    },
-    {
-      "id": "3ce945c9dc438042904dfefc64fc2981",
-      "slug": "cpu-burn-operation-3ce945c9",
-      "title": "CPU Burn Operation",
-      "parent": null,
-      "path": [],
-      "domain": "Software",
-      "confidence": "Novice",
-      "summary": null,
-      "updated": "2026-10-17",
-      "edited": "2026-10-17T18:56:00.000Z",
-      "file": "knowledge/cpu-burn-operation-3ce945c9.md"
     },
     {
       "id": "3f1945c9dc43802989fbec241af5a0d4",
@@ -130,6 +104,36 @@
       "updated": "2026-10-17",
       "edited": "2026-10-17T19:00:00.000Z",
       "file": "knowledge/std-vector-3f3945c9.md"
+    },
+    {
+      "id": "3e4945c9dc43801dade6ca3a315b2ff4",
+      "slug": "uart-usart-3e4945c9",
+      "title": "UART / USART",
+      "parent": null,
+      "path": [
+        "Communication Protocols"
+      ],
+      "domain": "Software",
+      "confidence": "Intermediate",
+      "summary": null,
+      "updated": "2026-10-18",
+      "edited": "2026-10-18T15:49:00.000Z",
+      "file": "knowledge/uart-usart-3e4945c9.md"
+    },
+    {
+      "id": "3dd945c9dc43808283a1dfc8038a272b",
+      "slug": "message-digest-algorithm-md5-3dd945c9",
+      "title": "Message Digest Algorithm - MD5",
+      "parent": null,
+      "path": [
+        "cpp-hashlib"
+      ],
+      "domain": "Software",
+      "confidence": "Intermediate",
+      "summary": null,
+      "updated": "2026-10-18",
+      "edited": "2026-10-18T15:49:00.000Z",
+      "file": "knowledge/message-digest-algorithm-md5-3dd945c9.md"
     }
   ]
 }
