@@ -472,9 +472,15 @@ def main():
     if not token:
         sys.exit("NOTION_TOKEN is not set")
     n = Notion(token)
-    sync_knowledge(n)
-    sync_til(n)
-    sync_collection(n)
+    # each database on its own: one failing (e.g. not shared with the integration yet)
+    # must not stop the others from being published
+    for name, job in (("knowledge", sync_knowledge), ("til", sync_til), ("collection", sync_collection)):
+        try:
+            job(n)
+        except Exception as e:                     # noqa: BLE001 — report and keep going
+            hint = (" → in Notion: Developer portal → your connection → Content access → add this database"
+                    if "404" in str(e) or "object_not_found" in str(e) else "")
+            print(f"::warning title={name} sync skipped::{str(e)[:250]}{hint}")
 
 
 if __name__ == "__main__":
