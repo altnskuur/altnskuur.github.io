@@ -2,7 +2,7 @@
 technical: true
 personal: false
 date: 2026-10-09
-edited: 2026-10-18T12:04:00.000Z
+edited: 2026-10-22T12:26:00.000Z
 notion: 3f4945c9dc4380d79ad7c780c1b79c03
 ---
 # SSH Connection
@@ -83,7 +83,7 @@ SSH is one of the “conversation” that travel on those roads, just like web b
 ## Removing Remembered Host
 
 ```bash
-ssh-keygen -f "<path_to_ssh>/.ssh/knownhosts" -R "<host_username>@<host_ip>"
+ssh-keygen -f <path_to_ssh>/.ssh/knownhosts -R <host_ip>
 ```
 
 If reader try to connect different device with the same ip, reader needs to remove latest host’s informations.
@@ -124,9 +124,9 @@ nano ~/.ssh/config
 # ------------------------------
 # config file opens
 Host ssh_nas
-	HostName 192.168.10.1
-	User nas
-	IdentityFile ~/.ssh/id_ed25519 # if take ssh key with ed25519
+    HostName 192.168.10.1
+    User nas
+    IdentityFile ~/.ssh/id_ed25519 # if take ssh key with ed25519
 ```
 
 - Complete command:
