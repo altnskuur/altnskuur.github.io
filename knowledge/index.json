@@ -1,6 +1,19 @@
 {
   "items": [
     {
+      "id": "40a945c9dc438081bd25f9a85a724f16",
+      "slug": "understanding-designing-modern-storage-systems-40a945c9",
+      "title": "Understanding & Designing Modern Storage Systems",
+      "parent": null,
+      "path": [],
+      "domain": "Hardware",
+      "confidence": "Intermediate",
+      "summary": "NAND flash memory is the de facto standard for architecting a storage device in modern computing systems. As modern computing systems process a large amount of data at an unprecedented scale, a storage device needs to meet high requirements on storage capacity and I/O performance. A NAND flash-based solid-state drive (SSD) can provide orders-of-magnitude higher I/O performance compared to traditional hard-disk drives (HDDs), with a much lower cost-per bit value over SSDs based on emerging non-volatile memory (NVM) technologies.\n\nNAND flash memory has several unique characteristics, such as the erase-before write property (i.e., a flash cell needs to be first erased before programming it), limited lifetime (i.e., a cell cannot reliably store data after experiencing a certain number of program/erase (P/E) cycles), and large operation units (e.g., modern NAND flash memory typically reads/writes data in a page (e.g., 16 KiB) granularity). To achieve high performance and large capacity of the storage system while hiding the unique characteristics of NAND flash memory, it is critical to design efficient SSD firmware, commonly called Flash-Translation Layer (FTL). An FTL is responsible for many critical management tasks, such as address translation, garbage collection, wear leveling, and I/O scheduling, which significantly affect the performance, reliability, and lifetime of the SSD.\n\nIn this course, we will cover how a modern NAND flash-based SSD is organized and operates, from the basics of underlying NAND flash devices and various SSD-management tasks at the FTL level. We will also examine other emerging memory technologies for building SSDs, such as Phase Change Memory, 3D XPoint (e.g., Intel Optane SSD) and more.\n\nYou will help build a practical SSD simulator by refactoring MQSim, a state-of-the-art simulator for high-end SSDs, to support advanced features of modern NAND flash chips and essential SSD-management tasks. This will allow you to have the chance to obtain a comprehensive background in modern storage systems and research experience on system optimization with rigorous evaluation.",
+      "updated": "2026-10-31",
+      "edited": "2026-10-31T17:05:00.000Z",
+      "file": "knowledge/understanding-designing-modern-storage-systems-40a945c9.md"
+    },
+    {
       "id": "3d5945c9dc4380ca9db5eb2f14e029dd",
       "slug": "c-flash-cards-3d5945c9",
       "title": "C++ Flash Cards",
