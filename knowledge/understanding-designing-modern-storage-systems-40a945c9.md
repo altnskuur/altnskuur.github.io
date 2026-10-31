@@ -2,7 +2,7 @@
 
 | Lecture Name | Slide’s URL | Lecture’s URL |
 |---|---|---|
-| [Untitled](https://app.notion.com/p/40a945c9dc4380e896acc820910fc5f4) Hard |  | [Fall 2026](https://www.youtube.com/watch?v=g3wAlENrsj0&list=PLcQYzfBAwuFs&index=2)  [Spring 2026](https://www.youtube.com/watch?v=GhfMpT5ep3A&list=PL5Q2soXY2Zi9OtbGJyUVHp1Gp3c_0Dymh&index=2) |
+| Basics of NAND Flash-Based SSDs |  | [Fall 2026](https://www.youtube.com/watch?v=g3wAlENrsj0&list=PLcQYzfBAwuFs&index=2)  [Spring 2026](https://www.youtube.com/watch?v=GhfMpT5ep3A&list=PL5Q2soXY2Zi9OtbGJyUVHp1Gp3c_0Dymh&index=2) |
 | Introduction to MQSim |  | [Fall 2026](https://www.youtube.com/watch?v=CA7Mb99qkCU&list=PLcQYzfBAwuFs&index=3)  [Spring 2026](https://www.youtube.com/watch?v=9YZGHl6yxBc&list=PL5Q2soXY2Zi9OtbGJyUVHp1Gp3c_0Dymh&index=3) |
 | Processing Inside NAND Flash Memory |  | [Fall 2026](https://www.youtube.com/watch?v=7SJUBQbYbRM&list=PLcQYzfBAwuFs&index=4)  [Spring 2026 Lecture I](https://www.youtube.com/watch?v=Oi6ZTViWaNA&list=PL5Q2soXY2Zi9OtbGJyUVHp1Gp3c_0Dymh&index=4)  [Spring 2026 Lecture II](https://www.youtube.com/watch?v=Oi6ZTViWaNA&list=PL5Q2soXY2Zi9OtbGJyUVHp1Gp3c_0Dymh&index=4) |
 | Cutting-Edge Research in Flash Memory |  | [Fall 2026](https://www.youtube.com/watch?v=k--kw0ExHzU&list=PLcQYzfBAwuFs&index=5) |
