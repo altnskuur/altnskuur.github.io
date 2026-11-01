@@ -403,12 +403,21 @@ def notion_id_of(path):
 def sync_til(n):
     db = os.environ.get("NOTION_TIL_DB", DEFAULT_TIL_DB).replace("-", "")
     pages = n.query_published(db, TIL_STATUS)
-    notes = []
+    notes, skipped = [], []
     for page in pages:
-        topics = set(prop(page, "Topic") or [])
+        topic = prop(page, "Topic")            # a single select ("Engineering") or a multi-select (list)
+        topics = {topic} if isinstance(topic, str) else set(topic or [])
         technical, personal = bool(topics & TIL_TECHNICAL), bool(topics & TIL_PERSONAL)
         if technical or personal:              # "Sended" but no website topic → stays private
             notes.append((page, technical, personal))
+        else:
+            skipped.append(prop(page, "Name") or "untitled")
+    if skipped:
+        print(f"::warning title=til::{len(skipped)} sended note(s) have no website topic and stay private: {', '.join(skipped)[:300]}")
+    if pages and not notes:                    # every sended note was rejected: something changed in notion,
+        raise RuntimeError(                    # so don't wipe the site — stop and let the warning show
+            f"{len(pages)} sended note(s) but none has a Topic of {sorted(TIL_TECHNICAL | TIL_PERSONAL)}; "
+            "did the Topic property change? til/ was left as it is")
     notes.sort(key=lambda x: (x[0].get("created_time") or "", x[0]["id"]))   # oldest = #1
     print(f"til: {len(notes)} sended note(s) with a website topic")
 
