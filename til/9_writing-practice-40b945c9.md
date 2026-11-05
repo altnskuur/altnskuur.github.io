@@ -2,7 +2,7 @@
 technical: false
 personal: true
 date: 2026-11-01
-edited: 2026-11-03T16:55:00.000Z
+edited: 2026-11-05T20:37:00.000Z
 notion: 40b945c9dc4380b8a0cef5a694d56214
 ---
 # Writing Practice
@@ -98,6 +98,12 @@ Uğur
 
 ---
 
+### Opening Pleasantries - Formal
+
+- **I hope this email finds you well.**
+- I appreciate you taking the time to read this.
+- I know you have a busy schedule, so I will be brief .
+
 ### Complimentary Closes
 
 Professional - Formal
@@ -114,6 +120,24 @@ Daily Expressions
 - Let me know what you think.
 - Drop me a line when you have a moment.
 - Looking forward to catching up soon.
+
+### Request Ending
+
+Professional - Formal
+
+- Would it be possible to + [VERB] …?
+- I would be grateful if you could [VERB] …
+- I was wondering if you might be able to + [VERB] …
+- Could you kindly provide / send + [Noun] …?
+- Would you mind + [VERB-ing] …?
+
+Daily Expressions
+
+- Can you + [VERB] …?
+- Could you should / pass me + [NOUN] …?
+- Any change you could + [VERB] …?
+- Do you mind + [VERB-ing] …?
+- Let me know if you can + [VERB] …
 
 ## Timeline for Writing an E-Mail
 
