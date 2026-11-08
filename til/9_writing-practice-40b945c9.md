@@ -2,7 +2,7 @@
 technical: false
 personal: true
 date: 2026-11-01
-edited: 2026-11-05T20:37:00.000Z
+edited: 2026-11-08T15:05:00.000Z
 notion: 40b945c9dc4380b8a0cef5a694d56214
 ---
 # Writing Practice
