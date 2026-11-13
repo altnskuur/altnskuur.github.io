@@ -2,7 +2,7 @@
 technical: false
 personal: true
 date: 2026-11-01
-edited: 2026-11-09T18:57:00.000Z
+edited: 2026-11-13T18:59:00.000Z
 notion: 40b945c9dc4380b8a0cef5a694d56214
 ---
 # Writing Practice
@@ -262,7 +262,7 @@ Step 3: Wrap up
 
 ### Expressing Agreement and Building On It
 
-- I agree with [name]’s point about…, and I would like to add…
+- **I agree with [name]’s point about…, and I would like to add…**
 - [name]’s perspective resonates with me because…
 - Building on what [name] said, I think…
 - In reference to what [name] mentioned, I would also point out that…
